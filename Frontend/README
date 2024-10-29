@@ -1,0 +1,17 @@
+FrontEnd
+
+Con vite y react
+
+Ingresar a la carpeta vite-project y dentro ejecutar los siguientes comandos:
+
+Instalar paquetes
+
+```bash
+  npm install
+```
+
+Luego
+
+```bash
+    npm run dev
+```
