@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import horaRoutes from "./Routes/hora.routes.js";
 import profesorRoute from "./Routes/profesor.routes.js";
+import profesorHoraRoutes from "./Routes/profesor_hora.routes.js";
 import registroRoute from "./Routes/registro.routes.js";
 import rolRoute from "./Routes/rol.routes.js";
 import usuariosRoute from "./Routes/usuario.routes.js";
@@ -12,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", profesorRoute);
-
+app.use("/api", profesorHoraRoutes);
 app.use("/api", horaRoutes);
 app.use("/api", rolRoute);
 app.use("/api", usuariosRoute);
