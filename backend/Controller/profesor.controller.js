@@ -14,27 +14,31 @@ export const getProfesores = (req, res) => {
 };
 
 export const getProfesorById = (req, res) => {
-  const id = req.params.id;
-  db.query("SELECT * FROM profesor WHERE id = $1", [id], (err, result) => {
-    if (err) {
-      console.error(
-        "Error en la consulta a la base de datos, error numero:",
-        err
-      );
-      return res.status(500).send("Error en la consulta a la base de datos");
+  const id = req.params.profesor_id;
+  db.query(
+    "SELECT * FROM profesor WHERE profesor_id = $1",
+    [id],
+    (err, result) => {
+      if (err) {
+        console.error(
+          "Error en la consulta a la base de datos, error numero:",
+          err
+        );
+        return res.status(500).send("Error en la consulta a la base de datos");
+      }
+      if (result.rows.length === 0) {
+        return res.status(404).send("Profesor no encontrado");
+      }
+      res.json(result.rows[0]);
     }
-    if (result.rows.length === 0) {
-      return res.status(404).send("Profesor no encontrado");
-    }
-    res.json(result.rows[0]);
-  });
+  );
 };
 
 export const createProfesor = (req, res) => {
   const { profesor_id, usuario_id, email } = req.body;
   db.query(
     "INSERT INTO profesor (profesor_id, email, usuario_id) VALUES ($1, $2, $3) RETURNING *",
-    [profesor_id, usuario_id, email],
+    [profesor_id, email, usuario_id],
     (err, result) => {
       if (err) {
         console.error(
