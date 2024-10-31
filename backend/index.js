@@ -1,6 +1,6 @@
 import express from "express";
+import app from "./app.js";
 import { db } from "./db.js";
-const app = express();
 
 db.connect((err) => {
   if (err) {
