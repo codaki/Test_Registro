@@ -1,5 +1,6 @@
-const Camera_Page = () => {
-  return <h1 className="text-2xl">Camera_Page</h1>;
-};
+import Camera from "../Components/Camera";
+function Camera_Page() {
+  return <Camera />;
+}
 
 export default Camera_Page;

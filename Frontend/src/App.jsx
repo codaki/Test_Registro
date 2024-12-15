@@ -14,22 +14,24 @@ const App = () => {
     return (
       <>
         <Navbar />
-        <Sidebar />
-        <Outlet />
+        <div className="flex">
+          <Sidebar className="w-1/4" />
+          <div className="flex-1">
+            <Outlet />
+          </div>
+        </div>
       </>
     );
   };
 
   return (
     <Router>
-      <div className="flex">
-        <Routes>
-          <Route path="/" element={<Main_Page />} />
-          <Route path="/Camera_Page" element={<Layout />}>
-            <Route index element={<Camera_Page />} />
-          </Route>
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<Main_Page />} />
+        <Route path="/Camera_Page" element={<Layout />}>
+          <Route index element={<Camera_Page />} />
+        </Route>
+      </Routes>
     </Router>
   );
 };
