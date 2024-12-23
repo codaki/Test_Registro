@@ -1,8 +1,7 @@
-import React from "react";
 import Camera from "../Components/Camera";
+import decc from "../assets/decc.png";
 import entrada from "../assets/fondoRegistro.png";
 import logoBlanco from "../assets/logoBlanco.png";
-import decc from "../assets/decc.png";
 
 function RegistroAsistencia() {
   return (
@@ -22,16 +21,12 @@ function RegistroAsistencia() {
             className="h-20 object-contain"
           />
           {/* DECC */}
-          <img
-            src={decc}
-            alt="Logo DECC"
-            className="h-20 object-contain"
-          />
+          <img src={decc} alt="Logo DECC" className="h-20 object-contain" />
         </div>
       </div>
 
-            {/* Barra verde con texto */}
-            <div className="w-full bg-green-700 py-2 text-center text-white text-lg font-bold">
+      {/* Barra verde con texto */}
+      <div className="w-full bg-green-700 py-2 text-center text-white text-lg font-bold">
         REGISTRO DE ASISTENCIA
       </div>
 

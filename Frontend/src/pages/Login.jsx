@@ -1,5 +1,4 @@
-import React from 'react';
-import espe from '../assets/espe.png';
+import espe from "../assets/espe.png";
 
 function Login() {
   return (
@@ -15,7 +14,9 @@ function Login() {
         </div>
         {/* Sección derecha para el formulario */}
         <div className="w-full md:w-1/2 p-8">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login</h2>
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            Login
+          </h2>
           <form>
             <div className="mb-4">
               <label

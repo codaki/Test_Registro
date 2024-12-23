@@ -5,13 +5,15 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+
 import Navbar from "./Components/Navbar";
 import Sidebar from "./Components/Sidebar";
+import Carga_horarios from "./Pages/Carga_horarios";
 import Dashboard from "./Pages/Dashboard";
-import Main_Page from "./Pages/Main_Page";
+import Lista_Profesores from "./Pages/Lista_Profesores";
 import Login from "./pages/Login";
-import RegistroAsistencia from "./pages/RegistroAsistencia";
-
+import Main_Page from "./Pages/Main_Page";
+import RegistroAsistencia from "./Pages/Registro_Asistencia";
 const App = () => {
   const Layout = () => {
     const location = useLocation();
@@ -39,6 +41,12 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Main_Page />} />
         <Route path="/Login" element={<Login />} />
+        <Route path="/Carga_horarios" element={<Layout />}>
+          <Route index element={<Carga_horarios />} />
+        </Route>
+        <Route path="/Lista_Profesores" element={<Layout />}>
+          <Route index element={<Lista_Profesores />} />
+        </Route>
         <Route path="/RegistroAsistencia" element={<RegistroAsistencia />} />
         <Route path="/Dashboard" element={<Layout />}>
           <Route index element={<Dashboard />} />

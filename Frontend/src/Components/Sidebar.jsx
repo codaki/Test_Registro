@@ -5,14 +5,14 @@ function Sidebar() {
         <div className="p-4"></div>
         <div className="text-black text-2xl">Menu</div>
         <div className="flex flex-col items-center text-black">
-          <a href="#" className="p-4 hover:bg-gray-700 w-full">
+          <a href="/" className="p-4 hover:bg-gray-700 w-full">
             Home
           </a>
-          <a href="#" className="p-4 hover:bg-gray-700 w-full">
-            Camera
+          <a href="/Lista_Profesores" className="p-4 hover:bg-gray-700 w-full">
+            Profesores
           </a>
-          <a href="#" className="p-4 hover:bg-gray-700 w-full">
-            Users
+          <a href="/Carga_horarios" className="p-4 hover:bg-gray-700 w-full">
+            Excel
           </a>
         </div>
       </div>
