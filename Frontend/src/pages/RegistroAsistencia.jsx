@@ -1,6 +1,6 @@
 import React from "react";
 import Camera from "../Components/Camera";
-import entrada from "../assets/entrada.gif";
+import entrada from "../assets/fondoRegistro.png";
 import logoBlanco from "../assets/logoBlanco.png";
 import decc from "../assets/decc.png";
 
