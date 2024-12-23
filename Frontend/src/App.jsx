@@ -9,6 +9,7 @@ import Sidebar from "./Components/Sidebar";
 import Camera_Page from "./Pages/Camera_Page";
 import Dashboard from "./Pages/Dashboard";
 import Main_Page from "./Pages/Main_Page";
+import Login from "./pages/Login";
 
 const App = () => {
   const Layout = () => {
@@ -29,6 +30,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Main_Page />} />
+        <Route path="/Login" element={<Login />} />
         <Route path="/Camera_Page" element={<Layout />}>
           <Route index element={<Camera_Page />} />
         </Route>
