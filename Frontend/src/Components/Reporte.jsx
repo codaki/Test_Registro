@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import {
   Document,
+  Image,
   Page,
   PDFDownloadLink,
   PDFViewer,
@@ -20,10 +21,19 @@ const styles = StyleSheet.create({
     padding: 10,
     flexGrow: 1,
   },
+  logo: {
+    width: 500,
+    height: 100,
+    justifyContent: "center",
+  },
   header: {
     fontSize: 18,
     textAlign: "center",
     marginBottom: 20,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   body: {
     fontSize: 12,
@@ -54,12 +64,16 @@ function Reporte_contenido({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.section}>
-          <Text style={styles.header}>
-            Universidad de las Fuerzas Armadas ESPE
-          </Text>
-          <Text style={styles.header}>
-            Departamento de Ciencias de la Computación
-          </Text>
+          <View>
+            <Image src={"./public/img/logo_espe_100.png"} style={styles.logo} />
+            <Text style={styles.header}>
+              Universidad de las Fuerzas Armadas ESPE
+            </Text>
+            <Text style={styles.header}>
+              Departamento de Ciencias de la Computación
+            </Text>
+          </View>
+
           <Text style={styles.body}>Certificado de Asistencia</Text>
           <Text style={styles.body}>
             Por medio del presente se certifica que:
