@@ -14,6 +14,9 @@ function Sidebar() {
           <a href="/Carga_horarios" className="p-4 hover:bg-gray-700 w-full">
             Excel
           </a>
+          <a href="/Reporte" className="p-4 hover:bg-gray-700 w-full">
+            Reportes
+          </a>
         </div>
       </div>
     </div>
