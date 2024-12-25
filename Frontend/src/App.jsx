@@ -8,6 +8,7 @@ import {
 
 import Navbar from "./Components/Navbar";
 import Sidebar from "./Components/Sidebar";
+import Calendario from "./Pages/Calendario";
 import Carga_horarios from "./Pages/Carga_horarios";
 import Dashboard from "./Pages/Dashboard";
 import Lista_Profesores from "./Pages/Lista_Profesores";
@@ -54,6 +55,9 @@ const App = () => {
         </Route>
         <Route path="/Reporte" element={<Layout />}>
           <Route index element={<Reportes />} />
+        </Route>
+        <Route path="/Calendario" element={<Layout />}>
+          <Route index element={<Calendario />} />
         </Route>
       </Routes>
     </Router>

@@ -71,7 +71,7 @@ function Carga_Excel() {
           className="mb-4"
         />
         <p className="text-center text-gray-500">
-          Arrastra y suelta un archivo Excel aquí o haz clic para cargar
+          Arrastra y suelta el archivo Excel aquí o haz clic para cargar
         </p>
       </div>
       {data.length > 0 && (

@@ -1,5 +1,16 @@
 /* eslint-disable react/prop-types */
 function Table({ columns, data }) {
+  const handleDelete = (id) => {
+    console.log(`Delete item with id: ${id}`);
+  };
+
+  const handleEdit = (id) => {
+    console.log(`Edit item with id: ${id}`);
+  };
+
+  const handleReport = (id) => {
+    console.log(`Report item with id: ${id}`);
+  };
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900">
@@ -108,8 +119,15 @@ function Table({ columns, data }) {
                 {column}
               </th>
             ))}
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Action
+            </th>
           </tr>
         </thead>
+
         <tbody>
           {data.map((row, rowIndex) => (
             <tr
@@ -121,6 +139,26 @@ function Table({ columns, data }) {
                   {row[column]}
                 </td>
               ))}
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <button
+                  className="text-red-600 hover:text-red-900"
+                  onClick={() => handleDelete(row.id)}
+                >
+                  Delete
+                </button>
+                <button
+                  className="text-blue-600 hover:text-blue-900 ml-4"
+                  onClick={() => handleEdit(row.id)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-yellow-600 hover:text-yellow-900 ml-4"
+                  onClick={() => handleReport(row.id)}
+                >
+                  Report
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
