@@ -5,6 +5,7 @@ import {
   FaFileExcel,
   FaHome,
   FaUsers,
+  FaCreativeCommonsBy,
 } from "react-icons/fa";
 
 function Sidebar() {
@@ -40,6 +41,13 @@ function Sidebar() {
         >
           <FaUsers className="text-xl" />
           {!isCollapsed && <span className="ml-2">Profesores</span>}
+        </a>
+        <a
+          href="/Agregar_Profesores"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaCreativeCommonsBy className="text-xl" />
+          {!isCollapsed && <span className="ml-2">Agregar</span>}
         </a>
         <a
           href="/Carga_horarios"

@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import Main_Page from "./Pages/Main_Page";
 import RegistroAsistencia from "./Pages/Registro_Asistencia";
 import Reportes from "./Pages/Reportes";
+import Agregar_Profesores from "./pages/Agregar_Profesores";
 const App = () => {
   const Layout = () => {
     const location = useLocation();
@@ -48,6 +49,9 @@ const App = () => {
         </Route>
         <Route path="/Lista_Profesores" element={<Layout />}>
           <Route index element={<Lista_Profesores />} />
+        </Route>
+        <Route path="/Agregar_Profesores" element={<Layout />}>
+          <Route index element={<Agregar_Profesores />} />
         </Route>
         <Route path="/RegistroAsistencia" element={<RegistroAsistencia />} />
         <Route path="/Dashboard" element={<Layout />}>
