@@ -28,8 +28,8 @@ const App = () => {
     return (
       <div>
         {shouldShowLayout && <Navbar />}
-        <div className="flex">
-          {shouldShowLayout && <Sidebar className="w-1/4" />}
+        <div className="flex ">
+          {shouldShowLayout && <Sidebar />}
           <div className={`flex-1 ${!shouldShowLayout && "w-full"}`}>
             <Outlet />
           </div>

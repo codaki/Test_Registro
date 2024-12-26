@@ -1,38 +1,67 @@
+import { useState } from "react";
+import {
+  FaCalendarAlt,
+  FaChartBar,
+  FaFileExcel,
+  FaHome,
+  FaUsers,
+} from "react-icons/fa";
+
 function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="bg-neutral-100 h-screen w-1/6 shadow-md">
-      <div className="flex flex-col items-center">
-        <div className="p-4"></div>
-        <div className="text-black text-2xl">Menu</div>
-        <div className="flex flex-col items-center text-black">
-          <a href="/" className="p-4 hover:bg-gray-700 hover:text-white w-full">
-            Home
-          </a>
-          <a
-            href="/Lista_Profesores"
-            className="p-4 hover:bg-gray-700 hover:text-white w-full"
-          >
-            Profesores
-          </a>
-          <a
-            href="/Carga_horarios"
-            className="p-4 hover:bg-gray-700 hover:text-white w-full"
-          >
-            Excel
-          </a>
-          <a
-            href="/Reporte"
-            className="p-4 hover:bg-gray-700  hover:text-white w-full"
-          >
-            Reportes
-          </a>
-          <a
-            href="/Calendario"
-            className="p-4 hover:bg-gray-700  hover:text-white w-full"
-          >
-            Calendario
-          </a>
-        </div>
+    <div
+      className={`bg-neutral-100 h-screen border-black shadow-2xl flex flex-col transition-all duration-700 ${
+        isCollapsed ? "w-16" : "w-1/6"
+      }`}
+    >
+      <button
+        onClick={toggleSidebar}
+        className="p-2 bg-gray-700 text-white rounded m-2 text-sm  self-end"
+      >
+        {isCollapsed ? ">" : "<"}
+      </button>
+      <div id="primero" className="flex flex-col items-center text-black mt-4 ">
+        <a
+          href="/"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaHome className="text-xl" />
+          {!isCollapsed && <span className="ml-2 ">Home</span>}
+        </a>
+        <a
+          href="/Lista_Profesores"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaUsers className="text-xl" />
+          {!isCollapsed && <span className="ml-2">Profesores</span>}
+        </a>
+        <a
+          href="/Carga_horarios"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaFileExcel className="text-xl" />
+          {!isCollapsed && <span className="ml-2">Excel</span>}
+        </a>
+        <a
+          href="/Reporte"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaChartBar className="text-xl" />
+          {!isCollapsed && <span className="ml-2">Reportes</span>}
+        </a>
+        <a
+          href="/Calendario"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaCalendarAlt className="text-xl" />
+          {!isCollapsed && <span className="ml-2">Calendario</span>}
+        </a>
       </div>
     </div>
   );
