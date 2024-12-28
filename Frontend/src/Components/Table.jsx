@@ -1,5 +1,9 @@
+import { useState } from "react";
+
 /* eslint-disable react/prop-types */
-function Table({ columns, data }) {
+function Table({ columns, data, searchTerm, setSearchTerm }) {
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+
   const handleDelete = (id) => {
     console.log(`Delete item with id: ${id}`);
   };
@@ -12,77 +16,37 @@ function Table({ columns, data }) {
     console.log(`Report item with id: ${id}`);
   };
 
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSort = (column) => {
+    let direction = "asc";
+    if (sortConfig.key === column && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key: column, direction });
+  };
+
+  const sortedData = [...data].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const filteredData = sortedData.filter((profesor) =>
+    `${profesor.nombres} ${profesor.apellidos} ${profesor.email}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900">
-        <div>
-          <button
-            id="dropdownActionButton"
-            data-dropdown-toggle="dropdownAction"
-            className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-            type="button"
-          >
-            <span className="sr-only">Action button</span>
-            Action
-            <svg
-              className="w-2.5 h-2.5 ms-2.5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 10 6"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m1 1 4 4 4-4"
-              />
-            </svg>
-          </button>
-          <div
-            id="dropdownAction"
-            className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
-          >
-            <ul
-              className="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="dropdownActionButton"
-            >
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  Reward
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  Promote
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  Activate account
-                </a>
-              </li>
-            </ul>
-            <div className="py-1">
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-              >
-                Delete User
-              </a>
-            </div>
-          </div>
-        </div>
         <label htmlFor="table-search" className="sr-only">
           Search
         </label>
@@ -108,7 +72,9 @@ function Table({ columns, data }) {
             type="text"
             id="table-search-users"
             className="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Search for users"
+            placeholder="Buscar..."
+            value={searchTerm}
+            onChange={handleSearch}
           />
         </div>
       </div>
@@ -116,8 +82,22 @@ function Table({ columns, data }) {
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             {columns.map((column, index) => (
-              <th key={index} scope="col" className="px-6 py-3">
+              <th
+                key={index}
+                scope="col"
+                className="px-6 py-3 cursor-pointer"
+                onClick={() =>
+                  handleSort(column.toLowerCase().replace(" ", "_"))
+                }
+              >
                 {column}
+                {sortConfig.key === column.toLowerCase().replace(" ", "_") ? (
+                  sortConfig.direction === "asc" ? (
+                    <span> ▲</span>
+                  ) : (
+                    <span> ▼</span>
+                  )
+                ) : null}
               </th>
             ))}
             <th
@@ -130,7 +110,7 @@ function Table({ columns, data }) {
         </thead>
 
         <tbody>
-          {data.map((row, rowIndex) => (
+          {filteredData.map((row, rowIndex) => (
             <tr
               key={rowIndex}
               className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -143,19 +123,19 @@ function Table({ columns, data }) {
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <button
                   className="text-red-600 hover:text-red-900"
-                  onClick={() => handleDelete(row.id)}
+                  onClick={() => handleDelete(row.profesor_id)}
                 >
                   Delete
                 </button>
                 <button
                   className="text-blue-600 hover:text-blue-900 ml-4"
-                  onClick={() => handleEdit(row.id)}
+                  onClick={() => handleEdit(row.profesor_id)}
                 >
                   Edit
                 </button>
                 <button
                   className="text-yellow-600 hover:text-yellow-900 ml-4"
-                  onClick={() => handleReport(row.id)}
+                  onClick={() => handleReport(row.profesor_id)}
                 >
                   Report
                 </button>
