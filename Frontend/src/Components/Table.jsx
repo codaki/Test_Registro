@@ -11,6 +11,7 @@ function Table({ columns, data }) {
   const handleReport = (id) => {
     console.log(`Report item with id: ${id}`);
   };
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900">
@@ -123,7 +124,7 @@ function Table({ columns, data }) {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Action
+              Acción
             </th>
           </tr>
         </thead>
@@ -136,7 +137,7 @@ function Table({ columns, data }) {
             >
               {columns.map((column, colIndex) => (
                 <td key={colIndex} className="px-6 py-4">
-                  {row[column]}
+                  {row[column.toLowerCase().replace(" ", "_")]}
                 </td>
               ))}
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

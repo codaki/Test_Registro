@@ -1,16 +1,19 @@
 import { db } from "../db.js";
 
 export const getProfesores = (req, res) => {
-  db.query("SELECT * FROM profesor", (err, result) => {
-    if (err) {
-      console.error(
-        "Error en la consulta a la base de datos, error numero:",
-        err
-      );
-      return res.status(500).send("Error en la consulta a la base de datos");
+  db.query(
+    "SELECT u.Nombre1, u.Nombre2, u.Apellido1, u.Apellido2, u.Usuario_ID, p.profesor_id, p.email FROM profesor p JOIN usuario u ON p.Usuario_ID = u.Usuario_ID;",
+    (err, result) => {
+      if (err) {
+        console.error(
+          "Error en la consulta a la base de datos, error numero:",
+          err
+        );
+        return res.status(500).send("Error en la consulta a la base de datos");
+      }
+      res.json(result.rows);
     }
-    res.json(result.rows);
-  });
+  );
 };
 
 export const getProfesorById = (req, res) => {
