@@ -2,7 +2,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Table from "../Components/Table";
 
-const columns = ["Nombres", "Apellidos", "Email", "Profesor ID", "Usuario ID"];
+const columns = [
+  "Nombres",
+  "Apellidos",
+  "Email",
+  "Profesor ID",
+  "Usuario ID",
+  "Porcentaje Asistencia",
+];
 
 function Lista_Profesores() {
   const [data, setData] = useState([]);

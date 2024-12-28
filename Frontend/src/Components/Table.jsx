@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* eslint-disable react/prop-types */
 function Table({ columns, data, searchTerm, setSearchTerm }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const navigate = useNavigate();
 
   const handleDelete = (id) => {
     console.log(`Delete item with id: ${id}`);
@@ -12,8 +14,8 @@ function Table({ columns, data, searchTerm, setSearchTerm }) {
     console.log(`Edit item with id: ${id}`);
   };
 
-  const handleReport = (id) => {
-    console.log(`Report item with id: ${id}`);
+  const handleReport = (profesor) => {
+    navigate("/Reporte", { state: { profesor } });
   };
 
   const handleSearch = (event) => {
@@ -135,7 +137,7 @@ function Table({ columns, data, searchTerm, setSearchTerm }) {
                 </button>
                 <button
                   className="text-yellow-600 hover:text-yellow-900 ml-4"
-                  onClick={() => handleReport(row.profesor_id)}
+                  onClick={() => handleReport(row)}
                 >
                   Report
                 </button>
