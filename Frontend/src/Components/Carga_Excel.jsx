@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import * as XLSX from "xlsx";
 
@@ -63,6 +64,57 @@ function Carga_Excel() {
     "S",
     "D",
   ];
+  console.log(data[1]);
+  const saveToDatabase = async () => {
+    try {
+      for (const row of data.slice(1)) {
+        const [idDocente, , docente] = row;
+        const nameParts = docente.split(/[\s,]+/);
+
+        let apellido1 = "";
+        let apellido2 = "";
+        let nombre1 = "";
+        let nombre2 = "";
+
+        if (nameParts.length === 3) {
+          [apellido1, nombre1, nombre2] = nameParts;
+        } else if (nameParts.length === 4) {
+          [apellido1, apellido2, nombre1, nombre2] = nameParts;
+        } else if (nameParts.length === 2) {
+          [apellido1, nombre1] = nameParts;
+        }
+        const usuarioResponse = await axios.post(
+          "http://localhost:3000/api/usuarios",
+          {
+            Username: `${nombre1}.${apellido1}`,
+            Password: "defaultPassword", // You might want to generate a secure password
+            Nombre1: nombre1,
+            Nombre2: nombre2 || "", // Handle cases where there might not be a second name
+            Apellido1: apellido1,
+            Apellido2: apellido2 || "", // Handle cases where there might not be a second surname
+            Rol_ID: 2,
+          }
+        );
+        console.log(nombre1);
+        console.log(apellido1);
+        console.log(idDocente);
+        console.log(usuarioResponse);
+        console.log("aaaaaa");
+        const usuarioId = usuarioResponse.data.usuario_id;
+        console.log(usuarioId);
+        await axios.post("http://localhost:3000/api/profesores", {
+          profesor_id: idDocente,
+          email: `${nombre1}.${apellido1}@example.com`, // You might want to use a real email
+          usuario_id: usuarioId,
+          docente_id: idDocente,
+        });
+      }
+      alert("Data saved successfully");
+    } catch (error) {
+      console.error("Error saving data:", error);
+      alert("Error saving data");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
@@ -114,6 +166,12 @@ function Carga_Excel() {
           </table>
         </div>
       )}
+      <button
+        onClick={saveToDatabase}
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Guardar Profesores
+      </button>
     </div>
   );
 }
