@@ -23,7 +23,14 @@ function Carga_Excel() {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 6 });
-      setData(jsonData);
+      const filteredData = jsonData.filter(
+        (row) =>
+          row[14] !== undefined &&
+          row[14] !== "" &&
+          row[2] !== undefined &&
+          row[2] !== "0"
+      );
+      setData(filteredData);
     };
     reader.readAsBinaryString(file);
   };
@@ -95,6 +102,7 @@ function Carga_Excel() {
                   {row.map((cell, cellIndex) => (
                     <td
                       key={cellIndex}
+                      id={rowIndex}
                       className="py-2 px-4 border-b border-gray-200"
                     >
                       {cell}
