@@ -86,7 +86,12 @@ function Carga_Excel() {
         let nombre1 = "";
         let nombre2 = "";
 
-        if (nameParts.length === 3) {
+        if (nameParts.length >= 4) {
+          apellido1 = nameParts.slice(0, 2).join(" "); // First two parts as first lastname
+          apellido2 = nameParts.slice(2, -2).join(" "); // Middle parts as second lastname
+          nombre1 = nameParts[nameParts.length - 2]; // Second last part as first name
+          nombre2 = nameParts[nameParts.length - 1]; // Last part as second name
+        } else if (nameParts.length === 3) {
           [apellido1, nombre1, nombre2] = nameParts;
         } else if (nameParts.length === 4) {
           [apellido1, apellido2, nombre1, nombre2] = nameParts;
