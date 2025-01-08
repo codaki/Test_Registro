@@ -37,30 +37,13 @@ function Agregar_Profesores() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    // Mapear rol al ID correspondiente
+    const roleId = formData.role === 'Administrador' ? 1 : 2;
+
     try {
-      // Primero creamos el rol
-      const rolResponse = await fetch('http://localhost:3000/api/roles', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          Rol_Nombre: formData.role,
-          Rol_Permiso: formData.role === 'Administrador' ? 'admin' : 'profesor'
-        })
-      });
-
-      if (!rolResponse.ok) {
-        const errorData = await rolResponse.json();
-        throw new Error(errorData.message || 'Error al crear el rol');
-      }
-
-      const rolData = await rolResponse.json();
-      console.log('Rol creado:', rolData);
-
-      // Luego creamos el usuario
-      const usuarioResponse = await fetch('http://localhost:3000/api/usuarios', {
+      // Crear el usuario con el rol asignado
+      const usuarioResponse = await fetch(`${API_URL}/usuarios`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +55,7 @@ function Agregar_Profesores() {
           Nombre2: formData.nombre2,
           Apellido1: formData.apellido1,
           Apellido2: formData.apellido2,
-          Rol_ID: rolData.Rol_Id
+          Rol_ID: roleId
         })
       });
 
