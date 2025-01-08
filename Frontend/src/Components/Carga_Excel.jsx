@@ -66,9 +66,19 @@ function Carga_Excel() {
   ];
   console.log(data[1]);
   const saveToDatabase = async () => {
+    const processedDocentes = new Set();
+
     try {
       for (const row of data.slice(1)) {
+        // Skip the first row
         const [idDocente, , docente] = row;
+
+        if (processedDocentes.has(docente)) {
+          continue; // Skip if the docente has already been processed
+        }
+
+        processedDocentes.add(docente);
+
         const nameParts = docente.split(/[\s,]+/);
 
         let apellido1 = "";
@@ -83,6 +93,7 @@ function Carga_Excel() {
         } else if (nameParts.length === 2) {
           [apellido1, nombre1] = nameParts;
         }
+
         const usuarioResponse = await axios.post(
           "http://localhost:3000/api/usuarios",
           {
@@ -95,6 +106,7 @@ function Carga_Excel() {
             Rol_ID: 2,
           }
         );
+
         console.log(nombre1);
         console.log(apellido1);
         console.log(idDocente);
@@ -102,6 +114,7 @@ function Carga_Excel() {
         console.log("aaaaaa");
         const usuarioId = usuarioResponse.data.usuario_id;
         console.log(usuarioId);
+
         await axios.post("http://localhost:3000/api/profesores", {
           profesor_id: idDocente,
           email: `${nombre1}.${apellido1}@example.com`, // You might want to use a real email
