@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import horaRoutes from "./Routes/hora.routes.js";
+import horarioRoute from "./Routes/horario.routes.js";
 import profesorRoute from "./Routes/profesor.routes.js";
 import profesorHoraRoutes from "./Routes/profesor_hora.routes.js";
 import registroRoute from "./Routes/registro.routes.js";
@@ -18,4 +19,5 @@ app.use("/api", horaRoutes);
 app.use("/api", rolRoute);
 app.use("/api", usuariosRoute);
 app.use("/api", registroRoute);
+app.use("/api", horarioRoute);
 export default app;
