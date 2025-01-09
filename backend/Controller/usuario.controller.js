@@ -31,17 +31,27 @@ export const getUsuarioById = async (req, res) => {
 export const createUsuario = async (req, res) => {
   try {
     const {
+      Cedula,
       Username,
-      Password,
+      UserPassword,
       Nombre1,
       Nombre2,
       Apellido1,
       Apellido2,
-      Rol_ID,
+      RoL_ID,
     } = req.body;
     const result = await db.query(
-      "INSERT INTO usuario (Username, Password, Nombre1, Nombre2, Apellido1, Apellido2, Rol_ID) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [Username, Password, Nombre1, Nombre2, Apellido1, Apellido2, Rol_ID]
+      "INSERT INTO Usuario (Cedula, Username, UserPassword, Nombre1, Nombre2, Apellido1, Apellido2, RoL_ID) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      [
+        Cedula,
+        Username,
+        UserPassword,
+        Nombre1,
+        Nombre2,
+        Apellido1,
+        Apellido2,
+        RoL_ID,
+      ]
     );
     res.status(201).json(result.rows[0]);
     console.log(result.rows[0]);
@@ -55,17 +65,28 @@ export const updateUsuario = async (req, res) => {
   try {
     const { id } = req.params;
     const {
+      Cedula,
       Username,
       Password,
       Nombre1,
       Nombre2,
       Apellido1,
       Apellido2,
-      Rol_ID,
+      RoL_ID,
     } = req.body;
     const result = await db.query(
-      "UPDATE usuario SET Username = $1, Password = $2, Nombre1 = $3, Nombre2 = $4, Apellido1 = $5, Apellido2 = $6, Rol_ID = $7 WHERE Usuario_ID = $8 RETURNING *",
-      [Username, Password, Nombre1, Nombre2, Apellido1, Apellido2, Rol_ID, id]
+      "UPDATE usuario SET Username = $1, UserPassword = $2, Nombre1 = $3, Nombre2 = $4, Apellido1 = $5, Apellido2 = $6, RoL_ID = $7, Cedula =$8 WHERE Usuario_ID = $9 RETURNING *",
+      [
+        Username,
+        Password,
+        Nombre1,
+        Nombre2,
+        Apellido1,
+        Apellido2,
+        RoL_ID,
+        Cedula,
+        id,
+      ]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "Usuario not found" });

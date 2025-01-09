@@ -71,7 +71,7 @@ function Carga_Excel() {
     try {
       for (const row of data.slice(1)) {
         // Skip the first row
-        const [idDocente, , docente] = row;
+        const [idDocente, cedula, docente] = row;
 
         if (processedDocentes.has(docente)) {
           continue; // Skip if the docente has already been processed
@@ -102,27 +102,21 @@ function Carga_Excel() {
         const usuarioResponse = await axios.post(
           "http://localhost:3000/api/usuarios",
           {
+            Cedula: cedula,
             Username: `${nombre1}.${apellido1}`,
             Password: "defaultPassword", // You might want to generate a secure password
             Nombre1: nombre1,
             Nombre2: nombre2 || "", // Handle cases where there might not be a second name
             Apellido1: apellido1,
             Apellido2: apellido2 || "", // Handle cases where there might not be a second surname
-            Rol_ID: 2,
+            RoL_ID: 2,
           }
         );
 
-        console.log(nombre1);
-        console.log(apellido1);
-        console.log(idDocente);
-        console.log(usuarioResponse);
-        console.log("aaaaaa");
         const usuarioId = usuarioResponse.data.usuario_id;
-        console.log(usuarioId);
-
         await axios.post("http://localhost:3000/api/profesores", {
           profesor_id: idDocente,
-          email: `${nombre1}.${apellido1}@example.com`, // You might want to use a real email
+          email: `${nombre1}.${apellido1}@example.com`,
           usuario_id: usuarioId,
           docente_id: idDocente,
         });
@@ -131,6 +125,34 @@ function Carga_Excel() {
     } catch (error) {
       console.error("Error saving data:", error);
       alert("Error saving data");
+    }
+  };
+  const saveHorarioToDatabase = async () => {
+    try {
+      for (const row of data.slice(1)) {
+        const horario = {
+          asignatura: row[6],
+          nrc: row[7],
+          edificio: row[14],
+          aula: row[15],
+          hora_ingreso: row[17],
+          hora_finalizacion: row[18],
+          clase_lunes: row[19] ? true : false,
+          clase_martes: row[20] ? true : false,
+          clase_miercoles: row[21] ? true : false,
+          clase_jueves: row[22] ? true : false,
+          clase_viernes: row[23] ? true : false,
+        };
+
+        await axios.post("http://localhost:3000/api/horarios/cargar", {
+          docente_id: row[0],
+          horario,
+        });
+      }
+      alert("Horarios saved successfully");
+    } catch (error) {
+      console.error("Error saving horarios:", error);
+      alert("Error saving horarios");
     }
   };
 
@@ -189,6 +211,12 @@ function Carga_Excel() {
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
       >
         Guardar Profesores
+      </button>
+      <button
+        onClick={saveHorarioToDatabase}
+        className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+      >
+        Guardar Horarios
       </button>
     </div>
   );

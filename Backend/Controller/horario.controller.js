@@ -128,3 +128,66 @@ export const deleteHorario = (req, res) => {
     res.send("Horario eliminado");
   });
 };
+
+export const cargar_horario = (req, res) => {
+  const { docente_id, horario } = req.body;
+
+  // Step 1: Get the profesor_id based on the docente_id
+  db.query(
+    "SELECT profesor_id FROM profesor WHERE docente_id = $1",
+    [docente_id],
+    (err, result) => {
+      if (err) {
+        console.error("Error en la consulta a la base de datos:", err);
+        return res.status(500).send("Error en la consulta a la base de datos");
+      }
+      if (result.rows.length === 0) {
+        return res.status(404).send("Profesor no encontrado");
+      }
+
+      const profesor_id = result.rows[0].profesor_id;
+
+      // Step 2: Upload the horario using the profesor_id
+      const {
+        asignatura,
+        nrc,
+        edificio,
+        aula,
+        hora_ingreso,
+        hora_finalizacion,
+        clase_lunes,
+        clase_martes,
+        clase_miercoles,
+        clase_jueves,
+        clase_viernes,
+      } = horario;
+
+      db.query(
+        "INSERT INTO horario (profesor_id, asignatura, nrc, edificio, aula, hora_ingreso, hora_finalizacion, clase_lunes, clase_martes, clase_miercoles, clase_jueves, clase_viernes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12) RETURNING *",
+        [
+          profesor_id,
+          asignatura,
+          nrc,
+          edificio,
+          aula,
+          hora_ingreso,
+          hora_finalizacion,
+          clase_lunes,
+          clase_martes,
+          clase_miercoles,
+          clase_jueves,
+          clase_viernes,
+        ],
+        (err, result) => {
+          if (err) {
+            console.error("Error en la consulta a la base de datos:", err);
+            return res
+              .status(500)
+              .send("Error en la consulta a la base de datos");
+          }
+          res.status(201).json(result.rows[0]);
+        }
+      );
+    }
+  );
+};
