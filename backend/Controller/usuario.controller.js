@@ -39,7 +39,10 @@ export const createUsuario = async (req, res) => {
       Apellido1,
       Apellido2,
       RoL_ID,
+      Email,
+      docente_id,
     } = req.body;
+
     const result = await db.query(
       "INSERT INTO Usuario (Cedula, Username, UserPassword, Nombre1, Nombre2, Apellido1, Apellido2, RoL_ID) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
       [
@@ -53,8 +56,17 @@ export const createUsuario = async (req, res) => {
         RoL_ID,
       ]
     );
-    res.status(201).json(result.rows[0]);
-    console.log(result.rows[0]);
+
+    const newUser = result.rows[0];
+
+    if (RoL_ID === 2) { // Si el rol es de profesor
+      await db.query(
+        "INSERT INTO Profesor (Usuario_ID, Email, docente_id) VALUES ($1, $2, $3)",
+        [newUser.Usuario_ID, Email, docente_id]
+      );
+    }
+
+    res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
