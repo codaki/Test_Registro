@@ -70,11 +70,10 @@ function Carga_Excel() {
 
     try {
       for (const row of data.slice(1)) {
-        // Skip the first row
         const [idDocente, cedula, docente] = row;
 
         if (processedDocentes.has(docente)) {
-          continue; // Skip if the docente has already been processed
+          continue;
         }
 
         processedDocentes.add(docente);
@@ -87,10 +86,10 @@ function Carga_Excel() {
         let nombre2 = "";
 
         if (nameParts.length >= 4) {
-          apellido1 = nameParts.slice(0, 2).join(" "); // First two parts as first lastname
-          apellido2 = nameParts.slice(2, -2).join(" "); // Middle parts as second lastname
-          nombre1 = nameParts[nameParts.length - 2]; // Second last part as first name
-          nombre2 = nameParts[nameParts.length - 1]; // Last part as second name
+          apellido1 = nameParts.slice(0, 2).join(" ");
+          apellido2 = nameParts.slice(2, -2).join(" ");
+          nombre1 = nameParts[nameParts.length - 2];
+          nombre2 = nameParts[nameParts.length - 1];
         } else if (nameParts.length === 3) {
           [apellido1, nombre1, nombre2] = nameParts;
         } else if (nameParts.length === 4) {
@@ -104,11 +103,11 @@ function Carga_Excel() {
           {
             Cedula: cedula,
             Username: `${nombre1}.${apellido1}`,
-            Password: "defaultPassword", // You might want to generate a secure password
+            Password: "defaultPassword",
             Nombre1: nombre1,
-            Nombre2: nombre2 || "", // Handle cases where there might not be a second name
+            Nombre2: nombre2 || "",
             Apellido1: apellido1,
-            Apellido2: apellido2 || "", // Handle cases where there might not be a second surname
+            Apellido2: apellido2 || "",
             RoL_ID: 2,
           }
         );

@@ -7,7 +7,7 @@ function Calendario() {
         <div className="mb-4">
           <h1 className="text-2xl font-bold">Lista Profesores</h1>
         </div>
-        <Calendar />
+        <Calendar profesorId={1} />
       </div>
     </>
   );
