@@ -8,15 +8,15 @@ import {
 
 import Navbar from "./Components/Navbar";
 import Sidebar from "./Components/Sidebar";
+import Agregar_Profesores from "./pages/Agregar_Profesores";
 import Calendario from "./Pages/Calendario";
 import Carga_horarios from "./Pages/Carga_horarios";
 import Dashboard from "./Pages/Dashboard";
 import Lista_Profesores from "./Pages/Lista_Profesores";
 import Login from "./pages/Login";
-import Main_Page from "./Pages/Main_Page";
+//import Main_Page from "./Pages/Main_Page";
 import RegistroAsistencia from "./Pages/Registro_Asistencia";
 import Reportes from "./Pages/Reportes";
-import Agregar_Profesores from "./pages/Agregar_Profesores";
 const App = () => {
   const Layout = () => {
     const location = useLocation();
@@ -42,7 +42,9 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Main_Page />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Lista_Profesores />} />
+        </Route>
         <Route path="/Login" element={<Login />} />
         <Route path="/Carga_horarios" element={<Layout />}>
           <Route index element={<Carga_horarios />} />

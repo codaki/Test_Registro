@@ -5,6 +5,7 @@ import {
   getRegistroById,
   getRegistros,
   getRegistrosByProfesorAndDay,
+  getRegistrosByProfesorAndWeek,
   updateRegistro,
 } from "../Controller/registro.controller.js";
 
@@ -17,5 +18,6 @@ router.post("/registros", createRegistro); // Crear un nuevo registro
 router.put("/registros/:id", updateRegistro); // Actualizar un registro por ID
 router.delete("/registros/:id", deleteRegistro); // Eliminar un registro por ID
 router.get("/registrosDia", getRegistrosByProfesorAndDay);
+router.get("/registrosSemana", getRegistrosByProfesorAndWeek);
 
 export default router;
