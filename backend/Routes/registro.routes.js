@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Router } from "express";
 import {
   createRegistro,
@@ -19,5 +20,28 @@ router.put("/registros/:id", updateRegistro); // Actualizar un registro por ID
 router.delete("/registros/:id", deleteRegistro); // Eliminar un registro por ID
 router.get("/registrosDia", getRegistrosByProfesorAndDay);
 router.get("/registrosSemana", getRegistrosByProfesorAndWeek);
+
+router.post("/reconocer", async (req, res) => {
+  try {
+    console.log("Entró en el servidor");
+    const { image } = req.body; // Imagen en Base64 desde React
+
+    if (!image) {
+      return res.status(400).json({ error: "No image received" });
+    }
+
+    console.log("Image received, sending to Flask...");
+
+    const response = await axios.post("http://127.0.0.1:5000/recognize", {
+      image,
+    });
+
+    console.log("Response from Flask:", response.data);
+    return res.json(response.data); // Enviar respuesta al frontend
+  } catch (error) {
+    console.error("❌ Error in Node.js:", error.message);
+    return res.status(500).json({ error: "Error en el reconocimiento facial" });
+  }
+});
 
 export default router;
