@@ -9,7 +9,7 @@ import io
 from PIL import Image
 
 # Cargar el modelo y el label encoder
-with open("deepface_model_ArcFace_Improved_nuevo_completo.pkl", "rb") as f:
+with open("deepface_model_VGG_Renombrado_completo.pkl", "rb") as f:
     model, label_encoder = pickle.load(f)
 
 # Cargar OpenCV Haar Cascade
@@ -34,7 +34,7 @@ def recognize_face(image):
 
             print("🧠 Extrayendo embedding con DeepFace...")
 
-            embedding = DeepFace.represent(face_rgb, model_name="ArcFace", enforce_detection=False)[0]["embedding"]
+            embedding = DeepFace.represent(face_rgb, model_name="VGG-Face", enforce_detection=False)[0]["embedding"]
 
             print("✅ Embedding extraído correctamente.")
 
