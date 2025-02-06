@@ -44,8 +44,7 @@ def recognize_face(image):
             confidence_score = float(predicted_probs[predicted_label] * 100)  # Convertir a float
 
             return {
-                "id": predicted_label,  # ID del usuario reconocido
-                "name": predicted_name,
+                "ID": predicted_name,
                 "confidence": confidence_score
             }
 

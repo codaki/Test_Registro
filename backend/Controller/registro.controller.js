@@ -27,26 +27,27 @@ export const getRegistroById = async (req, res) => {
   }
 };
 
-// Crear un nuevo registro
-// export const createRegistro = async (req, res) => {
-//   try {
-//     const { Profesor_ID, Hora, Dia, Lugar, Bool_Inicio, Tarde } = req.body;
-//     const result = await db.query(
-//       "INSERT INTO Registro (Profesor_ID, Hora, Dia, Lugar, Bool_Inicio, Tarde) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-//       [Profesor_ID, Hora, Dia, Lugar, Bool_Inicio, Tarde]
-//     );
-//     res.status(201).json(result.rows[0]);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 export const createRegistro = async (req, res) => {
   try {
     let { Profesor_ID, Hora, Dia, Lugar } = req.body;
     let Tarde = false;
     let Bool_Inicio = true;
-    // Invertir Bool_Inicio
-    Bool_Inicio = !Bool_Inicio;
+
+    // Convertir la hora de registro a formato numérico HHMM (sin ":")
+    const horaRegistro = parseInt(Hora.replace(":", ""), 10);
+    console.log("Hora de Registro:", horaRegistro);
+
+    // Verificar si el último registro fue de entrada o salida
+    const lastRegistroResult = await db.query(
+      "SELECT Bool_Inicio FROM registro WHERE Profesor_ID = $1 ORDER BY registro_id DESC LIMIT 1",
+      [Profesor_ID]
+    );
+
+    if (lastRegistroResult.rows.length > 0) {
+      Bool_Inicio = !lastRegistroResult.rows[0].bool_inicio; // Invertir el estado
+    }
+
+    console.log("Es un registro de:", Bool_Inicio ? "ENTRADA" : "SALIDA");
 
     // Obtener el horario del profesor para el día dado
     const diaSemana = new Date(Dia).getDay(); // 0 = Domingo, 1 = Lunes, ...
@@ -61,29 +62,76 @@ export const createRegistro = async (req, res) => {
     ];
     const diaColumna = `clase_${diasSemana[diaSemana]}`;
 
-    const horarioResult = await db.query(
-      `SELECT hora_ingreso 
-       FROM horario 
-       WHERE profesor_id = $1 
-       AND ${diaColumna} = true`,
+    // Obtener horarios de entrada y salida
+    const horarioEntradaResult = await db.query(
+      `SELECT hora_ingreso FROM horario WHERE profesor_id = $1 AND ${diaColumna} = true`,
       [Profesor_ID]
     );
 
-    if (horarioResult.rows.length > 0) {
-      const horaHorario = new Date(
-        `1970-01-01T${horarioResult.rows[0].hora_ingreso}`
-      );
-      const horaRegistro = new Date(`1970-01-01T${Hora}`);
+    const horarioSalidaResult = await db.query(
+      `SELECT hora_finalizacion FROM horario WHERE profesor_id = $1 AND ${diaColumna} = true`,
+      [Profesor_ID]
+    );
 
-      // Calcular diferencia en minutos
-      const diferenciaMinutos = (horaRegistro - horaHorario) / (1000 * 60);
+    if (
+      horarioEntradaResult.rows.length === 0 ||
+      horarioSalidaResult.rows.length === 0
+    ) {
+      return res.status(400).json({
+        message: "No hay horario registrado para este profesor en este día.",
+      });
+    }
 
-      // Si la diferencia es mayor a 10 minutos, marcar como tarde
-      if (diferenciaMinutos > 10) {
-        Tarde = true;
+    // Convertir horarios a números enteros para comparación
+    const horariosIngresos = horarioEntradaResult.rows.map((h) =>
+      parseInt(h.hora_ingreso, 10)
+    );
+    const horariosFinalizaciones = horarioSalidaResult.rows.map((h) =>
+      parseInt(h.hora_finalizacion, 10)
+    );
+
+    console.log("Horarios de ingreso:", horariosIngresos);
+    console.log("Horarios de salida:", horariosFinalizaciones);
+
+    let horarioEntrada = null;
+    let horarioSalida = null;
+
+    // Buscar el horario de ingreso y salida correspondiente
+    for (let i = 0; i < horariosIngresos.length; i++) {
+      if (
+        horaRegistro >= horariosIngresos[i] - 10 && // Permitir 10 minutos antes del ingreso
+        horaRegistro <= horariosFinalizaciones[i] // Debe estar dentro del horario de clase
+      ) {
+        horarioEntrada = horariosIngresos[i];
+        horarioSalida = horariosFinalizaciones[i];
+        break;
       }
     }
 
+    if (!horarioEntrada || !horarioSalida) {
+      return res
+        .status(400)
+        .json({ message: "El profesor no tiene clases en este momento." });
+    }
+
+    if (Bool_Inicio) {
+      // REGISTRO DE ENTRADA
+      const margenTolerancia = 5;
+      if (horaRegistro > horarioEntrada + margenTolerancia) {
+        Tarde = true; // Si es más de 5 minutos después de la hora de ingreso, es tarde
+      }
+      console.log(
+        "Registro de entrada válido en horario:",
+        horarioEntrada,
+        "| Tarde:",
+        Tarde
+      );
+    } else {
+      // REGISTRO DE SALIDA (Se permite en cualquier momento antes de la finalización)
+      console.log("Registro de salida válido en horario:", horarioSalida);
+    }
+
+    // Insertar el registro en la base de datos
     const result = await db.query(
       "INSERT INTO Registro (Profesor_ID, Hora, Dia, Lugar, Bool_Inicio, Tarde) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [Profesor_ID, Hora, Dia, Lugar, Bool_Inicio, Tarde]
@@ -146,41 +194,35 @@ export const getRegistrosByProfesorAndDay = async (req, res) => {
 export const getRegistrosByProfesorAndWeek = async (req, res) => {
   try {
     const { Profesor_ID, Dia } = req.query;
-    console.log(Dia);
-    // Convert to Date object, ensuring correct parsing
-    const selectedDate = new Date(Dia);
 
-    // Ensure selectedDate is valid
-    if (isNaN(selectedDate)) {
-      return res.status(400).json({ error: "Invalid date format" });
-    }
+    // Convertir Dia en objeto Date
+    const date = new Date(Dia);
+    const dayOfWeek = date.getDay();
 
-    // Get Monday of the selected week
-    const startOfWeek = new Date(selectedDate);
-    const dayOfWeek = startOfWeek.getDay(); // 0 (Sunday) to 6 (Saturday)
-    const offset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust to Monday if Sunday
-    startOfWeek.setDate(startOfWeek.getDate() + offset);
+    // Ajustar al domingo de la semana actual
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek - 1); // Restar el número de días para llegar al domingo
 
-    // Get Sunday of the selected week (If you want only Monday-Friday, use `+4`)
+    // Ajustar al sábado (seis días después del domingo)
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // Monday + 6 days = Sunday
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
 
-    // Format dates to match DB format (YYYY-MM-DD)
-    const startOfWeekStr = startOfWeek.toLocaleDateString("en-CA"); // YYYY-MM-DD
-    const endOfWeekStr = endOfWeek.toLocaleDateString("en-CA"); // YYYY-MM-DD
+    // Formatear fechas para la consulta (YYYY-MM-DD)
+    const startDate = startOfWeek.toISOString().split("T")[0];
+    const endDate = endOfWeek.toISOString().split("T")[0];
 
-    console.log("Fetching registros from:", startOfWeekStr, "to", endOfWeekStr);
-
+    console.log("Rango de la semana:", startDate, "a", endDate);
     const result = await db.query(
       `SELECT * FROM registro 
-       WHERE Profesor_ID = $1 
-       AND DATE(dia) BETWEEN $2 AND $3`,
-      [Profesor_ID, startOfWeekStr, endOfWeekStr]
+         WHERE Profesor_ID = $1 
+         AND dia >= $2 
+         AND dia <= $3 
+         ORDER BY dia, hora`,
+      [Profesor_ID, startDate, endDate]
     );
-
+    console.log(result.rows);
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error("Error fetching registros:", error);
     res.status(500).json({ error: error.message });
   }
 };

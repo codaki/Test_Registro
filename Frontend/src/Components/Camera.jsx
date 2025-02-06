@@ -2,45 +2,76 @@ import axios from "axios";
 import { useRef, useState } from "react";
 import Webcam from "react-webcam";
 
-function Camera() {
+// eslint-disable-next-line react/prop-types
+function Camera({ onCapture }) {
   const webcamRef = useRef(null);
   const [responseMessage, setResponseMessage] = useState("");
 
   const captureAndSend = async () => {
+    setResponseMessage("");
     const imageSrc = webcamRef.current.getScreenshot();
 
     if (!imageSrc) return;
 
-    try {
-      const response = await axios.post("http://localhost:3000/api/reconocer", {
-        image: imageSrc.split(",")[1], // Eliminar prefijo 'data:image/jpeg;base64,'
-      });
+    // Capturar la hora y fecha actual cuando se presiona el botón
+    const date = new Date();
+    const currentDate = date.toISOString().split("T")[0];
+    const currentTime = date.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
 
-      if (response.data.error) {
-        setResponseMessage("Error: " + response.data.error);
+    // Pasar la fecha y hora al componente padre
+
+    try {
+      // First API call for face recognition
+      const recognitionResponse = await axios.post(
+        "http://localhost:3000/api/reconocer",
+        {
+          image: imageSrc.split(",")[1],
+        }
+      );
+
+      if (recognitionResponse.data.error) {
+        setResponseMessage("Error: " + recognitionResponse.data.error);
       } else {
-        setResponseMessage(
-          `ID: ${response.data.id}, Nombre: ${response.data.name}`
-        );
+        const professorId = recognitionResponse.data.ID;
+        console.log("ID:", professorId);
+
+        try {
+          const horarioResponse = await axios.get(
+            `http://localhost:3000/api/profesor/${professorId}/horario-actual`
+          );
+          onCapture(currentDate, currentTime, horarioResponse.data);
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            setResponseMessage(error.response.data.message);
+          } else {
+            setResponseMessage("Error al obtener el horario del profesor");
+          }
+        }
       }
     } catch (error) {
-      setResponseMessage("Error en la comunicación con el servidor." + error);
+      console.error("Error:", error);
+      setResponseMessage("Error en el proceso de reconocimiento");
     }
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center lg:width-1/2 md:w-3/4 w-full mx-auto">
       <Webcam
         ref={webcamRef}
         screenshotFormat="image/jpeg"
-        width={400}
-        height={300}
+        width={800} // Se muestra más grande en pantalla
+        height={600}
+        screenshotWidth={400} // Se captura con un tamaño más pequeño
       />
       <button
         onClick={captureAndSend}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
       >
-        Capturar y Enviar
+        Detección
       </button>
       <p className="mt-2 text-lg text-gray-800">{responseMessage}</p>
     </div>

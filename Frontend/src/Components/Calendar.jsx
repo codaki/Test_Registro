@@ -9,20 +9,21 @@ const Calendar = ({ profesorId }) => {
   const [registros, setRegistros] = useState({});
   const [viewMode, setViewMode] = useState("week"); // "week" or "month"
 
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysOfWeek = ["Lun", "Mar", "Mié", "Jue", "Vie"];
   const hours = Array.from({ length: 17 }, (_, i) => `${i + 6}:00`);
-
+  console.log("Horas:", hours);
   const loadRegistros = async () => {
     try {
-      const formattedDate = selectedDate.toISOString().split("T")[0];
-      console.log("Formatted date:", formattedDate);
-      console.log(profesorId);
+      const date = new Date(selectedDate);
+      const offset = date.getTimezoneOffset();
+      date.setMinutes(date.getMinutes() - offset);
+      const formattedDate = date.toISOString().split("T")[0];
       const response = await axios.get(
-        "http://localhost:3000/api/registrosDia",
+        "http://localhost:3000/api/registrosSemana",
         {
           params: {
             Profesor_ID: profesorId,
-            Dia: formattedDate,
+            Dia: formattedDate.toString(),
           },
         }
       );
@@ -30,12 +31,16 @@ const Calendar = ({ profesorId }) => {
       console.log("Registros respuesta:", response);
       const registrosMap = {};
       response.data.forEach((registro) => {
-        const { Dia, Hora, Tarde } = registro;
-        if (!registrosMap[Dia]) registrosMap[Dia] = {};
-        registrosMap[Dia][Hora] = Tarde;
+        const { dia, hora, tarde } = registro;
+        const dateKey = dia.split("T")[0]; // Extract YYYY-MM-DD
+        const timeKey = hora.substring(0, 5); // Ensure "HH:MM" format
+
+        if (!registrosMap[dateKey]) registrosMap[dateKey] = {};
+        registrosMap[dateKey][timeKey] = tarde;
       });
 
       setRegistros(registrosMap);
+      console.log("Registros:", registrosMap);
     } catch (error) {
       console.error("Error fetching registros:", error);
     }
@@ -45,11 +50,13 @@ const Calendar = ({ profesorId }) => {
     loadRegistros();
   }, [selectedDate]);
 
-  // Calculate the start and end of the week for the selected date
   const getWeekDates = (date) => {
     const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay()); // Set to Sunday
-    return Array.from({ length: 7 }, (_, i) => {
+    const dayOfWeek = startOfWeek.getDay();
+    const offset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    startOfWeek.setDate(startOfWeek.getDate() + offset); // Ajustar a Lunes
+
+    return Array.from({ length: 5 }, (_, i) => {
       const day = new Date(startOfWeek);
       day.setDate(startOfWeek.getDate() + i);
       return day;
@@ -57,22 +64,20 @@ const Calendar = ({ profesorId }) => {
   };
 
   const weekDates = getWeekDates(selectedDate);
+  console.log(weekDates);
 
   const getCellClass = (date, hour) => {
-    console.log(date, hour);
     const formattedDate = date.toISOString().split("T")[0];
-    console.log("Formatted date:", formattedDate);
-    console.log(registros["2025-01-13"]);
-    // console.log(registros[formattedDate]);
-    // console.log(registros[formattedDate][hour]);
-    if (registros[formattedDate] && registros[formattedDate][hour]) {
-      return "bg-green-500";
+    console.log("Fecha Celda:", formattedDate);
+    if (registros[formattedDate]?.[hour]) {
+      const registro = registros[formattedDate][hour];
+      return registro.tarde ? "bg-red-500" : "bg-green-500";
     }
     return "";
   };
 
   return (
-    <section className="relative bg-stone-50 py-24">
+    <section className="relative bg-stone-50 py-4">
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 overflow-x-auto">
         <div className="flex flex-col md:flex-row max-md:gap-3 items-center justify-between mb-5">
           <div className="flex items-center gap-4">
@@ -114,33 +119,34 @@ const Calendar = ({ profesorId }) => {
         <div className="relative">
           {viewMode === "week" && (
             <div>
-              <div className="grid grid-cols-7 border-t border-gray-200 sticky top-0 left-0 w-full">
+              <div className="grid grid-cols-6 border-t border-gray-200 sticky top-0 left-0 w-full">
+                <div className="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900">
+                  Horas
+                </div>
                 {weekDates.map((date, index) => (
                   <div
                     key={index}
                     className="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900"
                   >
-                    {`${daysOfWeek[date.getDay()]} ${date.getDate()}`}
+                    {`${daysOfWeek[index]} ${date.getDate()}`}
                   </div>
                 ))}
               </div>
-              <div className="hidden grid-cols-7 sm:grid w-full overflow-x-auto">
+              <div className="grid grid-cols-6 sm:grid w-full overflow-x-auto overflow-y-scroll h-[60vh]">
                 {hours.map((hour, hourIndex) => (
                   <React.Fragment key={hourIndex}>
+                    <div className="h-14 lg:h-20 p-0.5 md:p-3.5 border-t border-r border-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">
+                      {hour}
+                    </div>
                     {weekDates.map((date, dayIndex) => (
                       <div
                         key={dayIndex}
-                        className={`h-32 lg:h-28 p-0.5 md:p-3.5 border-t border-r border-gray-200 transition-all hover:bg-stone-100 ${getCellClass(
+                        id={date.toString() + hour}
+                        className={`h-14 lg:h-20 p-0.5 md:p-3.5 border-t border-r border-gray-200 transition-all hover:bg-stone-100 ${getCellClass(
                           date,
                           hour
                         )}`}
-                      >
-                        {dayIndex === 0 && (
-                          <span className="text-xs font-semibold text-gray-400">
-                            {hour}
-                          </span>
-                        )}
-                      </div>
+                      ></div>
                     ))}
                   </React.Fragment>
                 ))}
@@ -151,14 +157,16 @@ const Calendar = ({ profesorId }) => {
           {viewMode === "month" && (
             <div>
               <div className="grid grid-cols-7 border-t border-gray-200 sticky top-0 left-0 w-full">
-                {daysOfWeek.map((day, index) => (
-                  <div
-                    key={index}
-                    className="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900"
-                  >
-                    {day}
-                  </div>
-                ))}
+                {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map(
+                  (day, index) => (
+                    <div
+                      key={index}
+                      className="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900"
+                    >
+                      {day}
+                    </div>
+                  )
+                )}
               </div>
               <div className="grid grid-cols-7 border-t border-gray-200">
                 {Array.from({ length: 30 }, (_, i) => {
