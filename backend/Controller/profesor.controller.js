@@ -26,19 +26,41 @@ export const getProfesores = (req, res) => {
 // Obtener un profesor por ID
 export const getProfesorById = (req, res) => {
   const profesorId = parseInt(req.params.profesor_id, 10);
-  const query = "SELECT * FROM Profesor WHERE Profesor_ID = $1";
+
+  if (isNaN(profesorId)) {
+    return res.status(400).json({ error: "ID de profesor inválido" });
+  }
+
+  const query = `
+    SELECT
+      p.Profesor_ID,
+      u.Cedula, 
+      u.Username, 
+      u.UserPassword, 
+      u.Nombre1, 
+      u.Nombre2, 
+      u.Apellido1, 
+      u.Apellido2, 
+      p.Email, 
+      p.docente_id
+    FROM Profesor p
+    JOIN Usuario u ON p.Usuario_ID = u.Usuario_ID
+    WHERE p.Profesor_ID = $1;
+  `;
 
   db.query(query, [profesorId], (err, result) => {
     if (err) {
       console.error("Error en la consulta a la base de datos:", err);
-      return res.status(500).send("Error en la consulta a la base de datos");
+      return res.status(500).json({ error: "Error en la consulta a la base de datos" });
     }
     if (result.rows.length === 0) {
-      return res.status(404).send("Profesor no encontrado");
+      return res.status(404).json({ error: "Profesor no encontrado" });
     }
     res.json(result.rows[0]);
   });
 };
+
+
 
 // Crear un nuevo profesor
 export const createProfesor = (req, res) => {
@@ -61,29 +83,87 @@ export const createProfesor = (req, res) => {
 // Actualizar un profesor por ID
 export const updateProfesor = (req, res) => {
   const profesorId = parseInt(req.params.profesor_id, 10);
-  const { email, usuario_id, docente_id } = req.body;
-  const query = `
-    UPDATE Profesor 
-    SET Email = $1, Usuario_ID = $2, docente_id = $3 
-    WHERE Profesor_ID = $4 
-    RETURNING *;
-  `;
+  const {
+    Cedula,
+    Username,
+    UserPassword,
+    Nombre1,
+    Nombre2,
+    Apellido1,
+    Apellido2,
+    Email,
+    docente_id
+  } = req.body;
 
-  db.query(
-    query,
-    [email, usuario_id, docente_id, profesorId],
-    (err, result) => {
-      if (err) {
-        console.error("Error en la consulta a la base de datos:", err);
-        return res.status(500).send("Error en la consulta a la base de datos");
-      }
-      if (result.rows.length === 0) {
-        return res.status(404).send("Profesor no encontrado");
-      }
-      res.json(result.rows[0]);
+  if (isNaN(profesorId)) {
+    return res.status(400).json({ error: "ID de profesor inválido" });
+  }
+
+  // 🔹 Obtiene el `Usuario_ID` asociado al `Profesor_ID`
+  const getUserQuery = "SELECT Usuario_ID FROM Profesor WHERE Profesor_ID = $1";
+
+  db.query(getUserQuery, [profesorId], (err, result) => {
+    if (err) {
+      console.error("Error obteniendo Usuario_ID:", err);
+      return res.status(500).json({ error: "Error en la consulta a la base de datos" });
     }
-  );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Profesor no encontrado" });
+    }
+
+    const usuarioId = result.rows[0].usuario_id;
+
+    // 🔹 Construcción dinámica de la consulta para manejar la contraseña opcionalmente
+    const updateQuery = `
+      WITH updated_user AS (
+        UPDATE Usuario 
+        SET 
+          Cedula = $1,
+          Username = $2,
+          ${UserPassword ? "UserPassword = $3," : ""} 
+          Nombre1 = $4, 
+          Nombre2 = $5, 
+          Apellido1 = $6, 
+          Apellido2 = $7
+        WHERE Usuario_ID = $8
+        RETURNING Usuario_ID
+      )
+      UPDATE Profesor 
+      SET 
+        Email = $9,
+        docente_id = $10
+      WHERE Profesor_ID = $11
+      RETURNING *;
+    `;
+
+    const values = [
+      Cedula,
+      Username,
+      ...(UserPassword ? [UserPassword] : []), // Agrega contraseña solo si se envió
+      Nombre1,
+      Nombre2,
+      Apellido1,
+      Apellido2,
+      usuarioId, // 🔹 Se usa `usuarioId` obtenido antes
+      Email,
+      docente_id,
+      profesorId
+    ];
+
+    db.query(updateQuery, values, (err, result) => {
+      if (err) {
+        console.error("Error en la actualización:", err);
+        return res.status(500).json({ error: "Error en la actualización de datos" });
+      }
+
+      res.json({ message: "Profesor actualizado correctamente", profesor: result.rows[0] });
+    });
+  });
 };
+
+
+
 
 // Eliminar un profesor por ID
 export const deleteProfesor = (req, res) => {

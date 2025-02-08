@@ -2,16 +2,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /* eslint-disable react/prop-types */
-function Table({ columns, data, searchTerm, setSearchTerm }) {
+function Table({ columns, data, searchTerm, setSearchTerm, onEdit, refreshData }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const navigate = useNavigate();
 
-  const handleDelete = (id) => {
-    console.log(`Delete item with id: ${id}`);
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/profesores/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar el profesor");
+      }
+
+      alert("Profesor eliminado con éxito.");
+      refreshData(); // ✅ Se recarga la lista tras eliminar
+    } catch (error) {
+      console.error("Error al eliminar profesor:", error);
+      alert("No se pudo eliminar el profesor.");
+    }
   };
 
-  const handleEdit = (id) => {
-    console.log(`Edit item with id: ${id}`);
+  const handleEdit = async (id) => {
+    onEdit(id); // ✅ Llama a la función que obtiene los datos completos
   };
 
   const handleReport = (profesor) => {
