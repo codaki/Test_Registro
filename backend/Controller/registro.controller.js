@@ -33,10 +33,12 @@ export const createRegistro = async (req, res) => {
     let Tarde = false;
     let Bool_Inicio = true;
 
+    console.log("HOra registro actual " + Hora);
     // Convertir la hora de registro a formato numérico HHMM (sin ":")
-    const horaRegistro = parseInt(Hora.replace(":", ""), 10);
+    let horaRegistro = parseInt(Hora.replace(":", ""), 10);
     console.log("Hora de Registro:", horaRegistro);
-
+    horaRegistro = "1400";
+    console.log("Hora de Registro2:", horaRegistro);
     // Verificar si el último registro fue de entrada o salida
     const lastRegistroResult = await db.query(
       "SELECT Bool_Inicio FROM registro WHERE Profesor_ID = $1 ORDER BY registro_id DESC LIMIT 1",
@@ -46,11 +48,12 @@ export const createRegistro = async (req, res) => {
     if (lastRegistroResult.rows.length > 0) {
       Bool_Inicio = !lastRegistroResult.rows[0].bool_inicio; // Invertir el estado
     }
-
+    console.log(Profesor_ID);
     console.log("Es un registro de:", Bool_Inicio ? "ENTRADA" : "SALIDA");
 
     // Obtener el horario del profesor para el día dado
-    const diaSemana = new Date(Dia).getDay(); // 0 = Domingo, 1 = Lunes, ...
+    const diaSemana = new Date(Dia).getDay() + 1; // 0 = Domingo, 1 = Lunes, ...
+    console.log(diaSemana);
     const diasSemana = [
       "domingo",
       "lunes",
@@ -61,18 +64,19 @@ export const createRegistro = async (req, res) => {
       "sabado",
     ];
     const diaColumna = `clase_${diasSemana[diaSemana]}`;
+    console.log("Columna de día:", diaColumna);
 
     // Obtener horarios de entrada y salida
     const horarioEntradaResult = await db.query(
       `SELECT hora_ingreso FROM horario WHERE profesor_id = $1 AND ${diaColumna} = true`,
       [Profesor_ID]
     );
-
+    console.log(horarioEntradaResult.rows);
     const horarioSalidaResult = await db.query(
       `SELECT hora_finalizacion FROM horario WHERE profesor_id = $1 AND ${diaColumna} = true`,
       [Profesor_ID]
     );
-
+    console.log(horarioSalidaResult.rows);
     if (
       horarioEntradaResult.rows.length === 0 ||
       horarioSalidaResult.rows.length === 0

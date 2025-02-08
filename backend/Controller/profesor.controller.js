@@ -183,6 +183,7 @@ export const deleteProfesor = (req, res) => {
 };
 
 export const getProfesorHorario = (req, res) => {
+  console.log("getProfesorHorario");
   const profesorId = req.params.profesor_id;
   const currentTime = new Date()
     .toLocaleTimeString("en-US", { hour12: false })
@@ -261,7 +262,7 @@ export const getProfesorHorario = (req, res) => {
     (CAST(h.hora_finalizacion AS TIME) + INTERVAL '10 minutes');
   `;
 
-  db.query(query, [mappedProfesorId, "0658"], (err, result) => {
+  db.query(query, [mappedProfesorId, "0700"], (err, result) => {
     if (err) {
       console.error("Error en la consulta a la base de datos:", err);
       return res.status(500).send("Error en la consulta a la base de datos");
