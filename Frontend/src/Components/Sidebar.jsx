@@ -5,6 +5,7 @@ import {
   FaFileExcel,
   FaHome,
   FaUsers,
+  FaUser,
   FaCreativeCommonsBy,
 } from "react-icons/fa";
 
@@ -69,6 +70,13 @@ function Sidebar() {
         >
           <FaCalendarAlt className="text-xl" />
           {!isCollapsed && <span className="ml-2">Calendario</span>}
+        </a>
+        <a
+          href="/Entrenamiento"
+          className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
+        >
+          <FaUser className="text-xl" />
+          {!isCollapsed && <span className="ml-2">Entrenamiento</span>}
         </a>
       </div>
     </div>

@@ -60,8 +60,6 @@ export const getProfesorById = (req, res) => {
   });
 };
 
-
-
 // Crear un nuevo profesor
 export const createProfesor = (req, res) => {
   const { usuario_id, email, docente_id } = req.body;
