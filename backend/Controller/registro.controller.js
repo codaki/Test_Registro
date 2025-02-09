@@ -296,3 +296,81 @@ export const getRegistrosByProfesorAndMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getRegistrosAtrasadosByMonth = async (req, res) => {
+  try {
+    const { mes, anio } = req.query;
+
+    // Validar el mes (1-12)
+    const month = parseInt(mes);
+    const year = parseInt(anio);
+
+    if (month < 1 || month > 12) {
+      return res.status(400).json({
+        message: "El mes debe estar entre 1 y 12",
+      });
+    }
+
+    // Crear fechas de inicio y fin del mes
+    const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
+    const endDate = `${year}-${month.toString().padStart(2, "0")}-${new Date(
+      year,
+      month,
+      0
+    ).getDate()}`;
+
+    const result = await db.query(
+      `SELECT 
+        r.dia,
+        r.hora,
+        u.Cedula,
+        u.Nombre1,
+        u.Nombre2, 
+        u.Apellido1,
+        u.Apellido2,
+        p.docente_id,
+        p.Profesor_ID,
+        EXTRACT(EPOCH FROM (CAST(r.hora AS TIME) - 
+          CAST((SELECT hora_ingreso FROM horario h 
+            WHERE h.profesor_id = r.profesor_id 
+            AND CASE EXTRACT(DOW FROM r.dia)
+              WHEN 1 THEN h.clase_lunes
+              WHEN 2 THEN h.clase_martes
+              WHEN 3 THEN h.clase_miercoles
+              WHEN 4 THEN h.clase_jueves
+              WHEN 5 THEN h.clase_viernes
+            END = true
+            LIMIT 1) AS TIME)))/60 as minutos_atraso
+       FROM registro r
+       INNER JOIN profesor p ON r.profesor_id = p.profesor_id
+       INNER JOIN usuario u ON p.usuario_id = u.usuario_id
+       WHERE r.dia BETWEEN $1 AND $2
+       AND r.tarde = true
+       AND r.bool_inicio = true
+       ORDER BY r.dia`,
+      [startDate, endDate]
+    );
+
+    const registrosFormateados = result.rows.map((registro, index) => ({
+      ord: index + 1,
+      ci: registro.cedula,
+      nombre: `${registro.nombre1} ${registro.nombre2 || ""} ${
+        registro.apellido1
+      } ${registro.apellido2 || ""}`.trim(),
+      id: registro.docente_id,
+      modalidad: "Presencial", // Se puede ajustar según necesidades
+      mes: new Date(registro.dia).toLocaleString("es-ES", { month: "long" }),
+      dia: new Date(registro.dia).getDate().toString().padStart(2, "0"),
+      atraso: "Sí",
+      tiempoAtraso: `${Math.round(registro.minutos_atraso)} Min`,
+    }));
+
+    res.status(200).json(registrosFormateados);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      error: "Error al obtener registros de atrasos",
+      detalles: error.message,
+    });
+  }
+};

@@ -5,6 +5,7 @@ import {
   deleteRegistro,
   getRegistroById,
   getRegistros,
+  getRegistrosAtrasadosByMonth,
   getRegistrosByProfesorAndDay,
   getRegistrosByProfesorAndMonth,
   getRegistrosByProfesorAndWeek,
@@ -22,6 +23,7 @@ router.delete("/registros/:id", deleteRegistro); // Eliminar un registro por ID
 router.get("/registrosDia", getRegistrosByProfesorAndDay);
 router.get("/registrosSemana", getRegistrosByProfesorAndWeek);
 router.get("/registrosMensual", getRegistrosByProfesorAndMonth);
+router.get("/registros-atrasos", getRegistrosAtrasadosByMonth);
 
 router.post("/reconocer", async (req, res) => {
   try {

@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
+import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AttendanceReport() {
   const [formData, setFormData] = useState({
@@ -15,41 +16,28 @@ export default function AttendanceReport() {
     cargo: "Directora",
   });
 
-  const [attendance, setAttendance] = useState([
-    {
-      ord: 1,
-      ci: "2987",
-      nombre: "Mauricio Renan Loachamin Valencia",
-      id: "123456",
-      modalidad: "Presencial",
-      mes: "Enero",
-      dia: "07",
-      atraso: "Sí",
-      tiempoAtraso: "10 Min",
-    },
-    {
-      ord: 2,
-      ci: "5678",
-      nombre: "Juan Perez",
-      id: "789012",
-      modalidad: "Teletrabajo",
-      mes: "Enero",
-      dia: "08",
-      atraso: "No",
-      tiempoAtraso: "0 Min",
-    },
-    {
-      ord: 3,
-      ci: "9101",
-      nombre: "Ana Torres",
-      id: "345678",
-      modalidad: "Presencial",
-      mes: "Enero",
-      dia: "09",
-      atraso: "Sí",
-      tiempoAtraso: "5 Min",
-    },
-  ]);
+  useEffect(() => {
+    const fetchAtrasados = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/api/registros-atrasos",
+          {
+            params: {
+              mes: 2, // Mes que deseas consultar
+              anio: 2025, // Año que deseas consultar
+            },
+          }
+        );
+        setAttendance(response.data);
+      } catch (error) {
+        console.error("Error fetching attendance:", error);
+      }
+    };
+
+    fetchAtrasados();
+  }, []);
+
+  const [attendance, setAttendance] = useState([]);
 
   const [pdfUrl, setPdfUrl] = useState(null);
 
