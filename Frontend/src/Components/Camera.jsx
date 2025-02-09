@@ -41,7 +41,7 @@ function Camera({ onCapture }) {
 
         try {
           const horarioResponse = await axios.get(
-            `http://localhost:3000/api/profesor/${professorId}/horario-actual`
+            `http://localhost:3000/api/profesores/${professorId}/horario-actual`
           );
           onCapture(currentDate, currentTime, horarioResponse.data);
         } catch (error) {

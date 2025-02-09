@@ -53,7 +53,7 @@ function RegistroAsistencia() {
         Lugar: professorInfo.edificio,
       };
       await axios.post("http://localhost:3000/api/registros", registroData);
-      setShowModal(true); // Mostrar el modal en lugar de la alerta
+      setShowModal(true);
     } catch (error) {
       console.error("Error al registrar:", error);
       alert("Error al registrar la asistencia");
@@ -86,11 +86,9 @@ function RegistroAsistencia() {
           <img src={decc} alt="Logo DECC" className="h-20 object-contain" />
         </div>
       </div>
-
       <div className="w-full bg-green-700 py-3 text-center text-white text-lg font-bold">
         REGISTRO DE PERMANENCIA
       </div>
-
       <div className="flex flex-1 bg-gray-100 p-8 gap-8 justify-center">
         <div className="w-1/2 bg-white shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -139,8 +137,13 @@ function RegistroAsistencia() {
             <p className="text-sm">Hora: {currentTime}</p>
           </div>
         </div>
+      </div>{" "}
+      {/* Footer */}
+      <div className="w-full bg-red-500 h-2"></div>
+      <div className="w-full bg-green-700 py-4 text-center text-white text-sm">
+        © 2024 Universidad de las Fuerzas Armadas ESPE - © 2024 CIENCIAS DE LA
+        COMPUTACIÓN.
       </div>
-
       <Modal show={showModal} onClose={handleCloseModal} />
     </div>
   );

@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 /* eslint-disable react/prop-types */
-function Table({ columns, data, searchTerm, setSearchTerm, onEdit, refreshData }) {
+function Table({
+  columns,
+  data,
+  searchTerm,
+  setSearchTerm,
+  onEdit,
+  onReport,
+  refreshData,
+}) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const navigate = useNavigate();
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/profesores/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/profesores/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Error al eliminar el profesor");
@@ -29,7 +38,7 @@ function Table({ columns, data, searchTerm, setSearchTerm, onEdit, refreshData }
   };
 
   const handleReport = (profesor) => {
-    navigate("/Reporte", { state: { profesor } });
+    onReport(profesor);
   };
 
   const handleSearch = (event) => {

@@ -51,7 +51,9 @@ export const getProfesorById = (req, res) => {
   db.query(query, [profesorId], (err, result) => {
     if (err) {
       console.error("Error en la consulta a la base de datos:", err);
-      return res.status(500).json({ error: "Error en la consulta a la base de datos" });
+      return res
+        .status(500)
+        .json({ error: "Error en la consulta a la base de datos" });
     }
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Profesor no encontrado" });
@@ -90,7 +92,7 @@ export const updateProfesor = (req, res) => {
     Apellido1,
     Apellido2,
     Email,
-    docente_id
+    docente_id,
   } = req.body;
 
   if (isNaN(profesorId)) {
@@ -103,7 +105,9 @@ export const updateProfesor = (req, res) => {
   db.query(getUserQuery, [profesorId], (err, result) => {
     if (err) {
       console.error("Error obteniendo Usuario_ID:", err);
-      return res.status(500).json({ error: "Error en la consulta a la base de datos" });
+      return res
+        .status(500)
+        .json({ error: "Error en la consulta a la base de datos" });
     }
 
     if (result.rows.length === 0) {
@@ -146,22 +150,24 @@ export const updateProfesor = (req, res) => {
       usuarioId, // 🔹 Se usa `usuarioId` obtenido antes
       Email,
       docente_id,
-      profesorId
+      profesorId,
     ];
 
     db.query(updateQuery, values, (err, result) => {
       if (err) {
         console.error("Error en la actualización:", err);
-        return res.status(500).json({ error: "Error en la actualización de datos" });
+        return res
+          .status(500)
+          .json({ error: "Error en la actualización de datos" });
       }
 
-      res.json({ message: "Profesor actualizado correctamente", profesor: result.rows[0] });
+      res.json({
+        message: "Profesor actualizado correctamente",
+        profesor: result.rows[0],
+      });
     });
   });
 };
-
-
-
 
 // Eliminar un profesor por ID
 export const deleteProfesor = (req, res) => {
@@ -187,7 +193,7 @@ export const getProfesorHorario = (req, res) => {
     .toLocaleTimeString("en-US", { hour12: false })
     .replace(/:/g, "")
     .slice(0, 4);
-  const currentDay = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const currentDay = new Date().getDay();
   console.log(currentTime, currentDay);
   // Map day number to column name
   const dayColumns = {
@@ -236,8 +242,11 @@ export const getProfesorHorario = (req, res) => {
     35: 64,
   };
   const mappedProfesorId = IdProfesores[profesorId];
-  const dayColumn = dayColumns[currentDay];
+  //Reconoce el día actual, modificar TODO
+  //const dayColumn = dayColumns[currentDay];
 
+  let dayColumn = "clase_viernes";
+  console.log(mappedProfesorId, dayColumn);
   // Only proceed if it's a weekday
   if (!dayColumn) {
     return res

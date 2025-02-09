@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Modal from "../Components/Modal";
 import Table from "../Components/Table";
 import EditProfesorModal from "../Modals/EditProfesorModal";
 
@@ -18,7 +20,9 @@ function Lista_Profesores() {
   const [error, setError] = useState(null);
   const [selectedProfesor, setSelectedProfesor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showNoRegistrosModal, setShowNoRegistrosModal] = useState(false);
 
+  const navigate = useNavigate();
   const fetchProfesores = async () => {
     try {
       setError(null);
@@ -26,7 +30,9 @@ function Lista_Profesores() {
       const formattedData = response.data.map((profesor) => ({
         ...profesor,
         nombres: `${profesor.nombre1 ?? ""} ${profesor.nombre2 ?? ""}`.trim(),
-        apellidos: `${profesor.apellido1 ?? ""} ${profesor.apellido2 ?? ""}`.trim(),
+        apellidos: `${profesor.apellido1 ?? ""} ${
+          profesor.apellido2 ?? ""
+        }`.trim(),
       }));
       setData(formattedData);
     } catch (error) {
@@ -39,10 +45,37 @@ function Lista_Profesores() {
     fetchProfesores();
   }, []);
 
+  const handleReport = async (profesor) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/api/registrosMensual",
+        {
+          params: {
+            Profesor_ID: profesor.profesor_id,
+            mes: 2,
+            anio: 2025,
+          },
+        }
+      );
+      if (response.data) {
+        navigate("/Reporte", { state: { profesor, from: "list" } });
+      }
+    } catch (error) {
+      console.error("Error fetching registros:", error);
+      setShowNoRegistrosModal(true);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfesores();
+  }, []);
+
   // ✅ Obtener datos completos antes de abrir el modal
   const handleEdit = async (profesorId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/profesores/${profesorId}`);
+      const response = await axios.get(
+        `http://localhost:3000/api/profesores/${profesorId}`
+      );
       setSelectedProfesor(response.data);
       setIsModalOpen(true);
     } catch (error) {
@@ -66,6 +99,7 @@ function Lista_Profesores() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           onEdit={handleEdit} // ✅ Pasamos la función de edición
+          onReport={handleReport} // ✅ Pasamos la función de reporte
           refreshData={fetchProfesores} // ✅ Para actualizar la lista después de una acción
         />
       )}
@@ -75,6 +109,13 @@ function Lista_Profesores() {
         onClose={() => setIsModalOpen(false)}
         profesor={selectedProfesor}
         onSave={fetchProfesores} // ✅ Recargar datos tras editar
+      />
+
+      <Modal
+        show={showNoRegistrosModal}
+        onClose={() => setShowNoRegistrosModal(false)}
+        title="No hay registros disponibles"
+        message="No se encontraron registros de asistencia para el período seleccionado."
       />
     </div>
   );

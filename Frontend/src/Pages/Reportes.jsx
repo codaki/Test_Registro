@@ -1,26 +1,20 @@
 import { useLocation } from "react-router-dom";
 import Reporte from "../Components/Reporte";
-
+import ReporteNovevades from "../Components/ReporteNovedades";
 function Reportes() {
   const location = useLocation();
-  const { profesor } = location.state || {};
-
+  const { profesor, from } = location.state || {};
+  console.log(profesor, from);
   return (
     <>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 h-5/6">
         <div className="mb-4">
           <h1 className="text-2xl font-bold">Reportes</h1>
           <div className="mb-4 border border-gray-200">
-            {profesor ? (
-              <Reporte
-                nombres={`${profesor.nombre1} ${profesor.nombre2}`}
-                apellidos={`${profesor.apellido1} ${profesor.apellido2}`}
-                cedula={profesor.usuario_id}
-                codigo={profesor.profesor_id}
-                // Agrega otros campos necesarios para el reporte
-              />
+            {from === "list" && profesor ? (
+              <Reporte profesor_id={profesor.profesor_id} />
             ) : (
-              <p>No se ha seleccionado ningún profesor.</p>
+              <ReporteNovevades />
             )}
           </div>
         </div>

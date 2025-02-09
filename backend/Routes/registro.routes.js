@@ -6,6 +6,7 @@ import {
   getRegistroById,
   getRegistros,
   getRegistrosByProfesorAndDay,
+  getRegistrosByProfesorAndMonth,
   getRegistrosByProfesorAndWeek,
   updateRegistro,
 } from "../Controller/registro.controller.js";
@@ -20,6 +21,7 @@ router.put("/registros/:id", updateRegistro); // Actualizar un registro por ID
 router.delete("/registros/:id", deleteRegistro); // Eliminar un registro por ID
 router.get("/registrosDia", getRegistrosByProfesorAndDay);
 router.get("/registrosSemana", getRegistrosByProfesorAndWeek);
+router.get("/registrosMensual", getRegistrosByProfesorAndMonth);
 
 router.post("/reconocer", async (req, res) => {
   try {

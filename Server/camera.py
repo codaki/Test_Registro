@@ -19,7 +19,7 @@ app = Flask(__name__)
 CORS(app)
 
 def recognize_face(image):
-    """Procesa la imagen, detecta el rostro y devuelve el ID y nombre."""
+    """Procesa la imagen, detecta el rostro y devuelve el ID y nombre solo si la confianza es >= 70%."""
     try:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=7, minSize=(50, 50))
@@ -33,25 +33,25 @@ def recognize_face(image):
             face_rgb = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
 
             print("🧠 Extrayendo embedding con DeepFace...")
-
             embedding = DeepFace.represent(face_rgb, model_name="VGG-Face", enforce_detection=False)[0]["embedding"]
-
             print("✅ Embedding extraído correctamente.")
 
             predicted_probs = model.predict_proba([embedding])[0]
-            predicted_label = int(np.argmax(predicted_probs))  # Convertir int64 a int
-            predicted_name = str(label_encoder.inverse_transform([predicted_label])[0])  # Convertir a string
-            confidence_score = float(predicted_probs[predicted_label] * 100)  # Convertir a float
+            predicted_label = int(np.argmax(predicted_probs))
+            predicted_name = str(label_encoder.inverse_transform([predicted_label])[0])
+            confidence_score = float(predicted_probs[predicted_label] * 100)
 
-            return {
-                "ID": predicted_name,
-                "confidence": confidence_score
-            }
-
+            if confidence_score >= 70.0:
+                return {
+                    "ID": predicted_name,
+                    "confidence": confidence_score
+                }
+            else:
+                print(f"❌ Confianza insuficiente: {confidence_score:.2f}%")
+                return {"error": "La confianza es inferior al 70%"}
     except Exception as e:
         print(f"❌ Error en el reconocimiento facial: {str(e)}")
         return {"error": f"Error en el reconocimiento facial: {str(e)}"}
-
 
 @app.route("/recognize", methods=["POST"])
 def recognize():
@@ -68,7 +68,8 @@ def recognize():
 
     except Exception as e:
         return jsonify({"error": f"Error en el procesamiento: {str(e)}"})
-@app.route("/hello", methods=["GET"]) 
+
+@app.route("/hello", methods=["GET"])
 def hello():
     return jsonify({"message": "Server is running"})
 

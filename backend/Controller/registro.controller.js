@@ -63,7 +63,8 @@ export const createRegistro = async (req, res) => {
       "viernes",
       "sabado",
     ];
-    const diaColumna = `clase_${diasSemana[diaSemana]}`;
+    // const diaColumna = `clase_${diasSemana[diaSemana]}`;
+    let diaColumna = "clase_viernes";
     console.log("Columna de día:", diaColumna);
 
     // Obtener horarios de entrada y salida
@@ -226,6 +227,71 @@ export const getRegistrosByProfesorAndWeek = async (req, res) => {
     );
     console.log(result.rows);
     res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getRegistrosByProfesorAndMonth = async (req, res) => {
+  try {
+    const { Profesor_ID, mes, anio } = req.query;
+
+    // Validar el mes (1-12)
+    const month = parseInt(mes);
+    const year = parseInt(anio);
+
+    if (month < 1 || month > 12) {
+      return res.status(400).json({
+        message: "El mes debe estar entre 1 y 12",
+      });
+    }
+
+    // Crear fechas de inicio y fin del mes
+    const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
+    const endDate = `${year}-${month.toString().padStart(2, "0")}-${new Date(
+      year,
+      month,
+      0
+    ).getDate()}`;
+    console.log("Id profesore" + Profesor_ID);
+    console.log("Rango del mes:", startDate, "a", endDate);
+    const result = await db.query(
+      `SELECT 
+        r.*,
+        u.Nombre1,
+        u.Nombre2,
+        u.Apellido1,
+        u.Apellido2,
+        p.docente_id
+       FROM registro r
+       INNER JOIN profesor p ON r.profesor_id = p.profesor_id
+       INNER JOIN usuario u ON p.usuario_id = u.usuario_id
+       WHERE r.Profesor_ID = $1 
+       AND r.dia >= $2 
+       AND r.dia <= $3 
+       ORDER BY r.dia, r.hora`,
+      [Profesor_ID, startDate, endDate]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: `No se encontraron registros para el profesor en el mes ${mes}`,
+      });
+    }
+
+    // Obtener la información del primer registro para los datos del profesor
+    const primerRegistro = result.rows[0];
+
+    res.status(200).json({
+      profesor_id: Profesor_ID,
+      docente_id: primerRegistro.docente_id,
+      nombre_completo: `${primerRegistro.nombre1} ${
+        primerRegistro.nombre2 || ""
+      } ${primerRegistro.apellido1} ${primerRegistro.apellido2 || ""}`.trim(),
+      mes: month,
+      anio: year,
+      registros: result.rows,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
