@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Carga_Fotos() {
   const [imagenes, setImagenes] = useState([]);
-  const [profesores, setProfesores] = useState([
-    "Profesor A",
-    "Profesor B",
-    "Profesor C",
-  ]); // Simulación de datos, puedes cargar desde una API
+  const [profesores, setProfesores] = useState([]);
   const [profesorSeleccionado, setProfesorSeleccionado] = useState("");
+
+  // Cargar profesores desde la API
+  useEffect(() => {
+    fetch("http://localhost:3000/api/profesores")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Error al obtener profesores");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Profesores obtenidos:", data); // Verificar datos en consola
+        setProfesores(data);
+      })
+      .catch((error) => console.error("Error en la API:", error));
+  }, []);
 
   const manejarArrastre = (evento) => {
     evento.preventDefault();
@@ -41,9 +53,9 @@ function Carga_Fotos() {
         className="border p-2 rounded w-full mb-4"
       >
         <option value="">Seleccione un profesor</option>
-        {profesores.map((profesor, index) => (
-          <option key={index} value={profesor}>
-            {profesor}
+        {profesores.map((profesor) => (
+          <option key={profesor.profesor_id} value={profesor.profesor_id}>
+            {`${profesor.nombre1} ${profesor.nombre2 || ""} ${profesor.apellido1} ${profesor.apellido2 || ""}`.trim()}
           </option>
         ))}
       </select>
