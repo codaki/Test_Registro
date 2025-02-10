@@ -1,30 +1,21 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+
 import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useEffect, useState } from "react";
 
-export default function AttendanceReport() {
-  const [formData, setFormData] = useState({
-    nombres: "Mauricio Renan",
-    apellidos: "Loachamin Valencia",
-    cedula: "2987",
-    codigo: "123456",
-    mes: "Febrero",
-    año: "2025",
-    responsable: "Ing. Sonia Cárdenas",
-    cargo: "Directora",
-  });
-
+export default function ReporteNovedades({ mes, anio }) {
   useEffect(() => {
     const fetchAtrasados = async () => {
       try {
+        console.log(mes, anio);
         const response = await axios.get(
           "http://localhost:3000/api/registros-atrasos",
           {
             params: {
-              mes: 2, // Mes que deseas consultar
-              anio: 2025, // Año que deseas consultar
+              mes: mes,
+              anio: anio,
             },
           }
         );
@@ -35,7 +26,7 @@ export default function AttendanceReport() {
     };
 
     fetchAtrasados();
-  }, []);
+  }, [mes, anio]);
 
   const [attendance, setAttendance] = useState([]);
 
@@ -59,8 +50,8 @@ export default function AttendanceReport() {
       align: "center",
     });
 
-    doc.text(`Mes: ${formData.mes}`, 105, 50, { align: "center" });
-    doc.text(`Año: ${formData.año}`, 105, 60, {
+    doc.text(`Mes: ${mes}`, 105, 50, { align: "center" });
+    doc.text(`Año: ${anio}`, 105, 60, {
       align: "center",
     });
 

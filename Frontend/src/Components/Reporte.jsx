@@ -18,8 +18,8 @@ function Reporte(props) {
           {
             params: {
               Profesor_ID: props.profesor_id,
-              mes: 2,
-              anio: 2025,
+              mes: props.mes,
+              anio: props.anio,
             },
           }
         );

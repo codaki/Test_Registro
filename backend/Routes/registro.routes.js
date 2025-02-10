@@ -36,12 +36,20 @@ router.post("/reconocer", async (req, res) => {
 
     console.log("Image received, sending to Flask...");
 
-    const response = await axios.post("http://127.0.0.1:5000/recognize", {
-      image,
-    });
-
-    console.log("Response from Flask:", response.data);
-    return res.json(response.data); // Enviar respuesta al frontend
+    try {
+      const response = await axios.post("http://127.0.0.1:5000/recognize", {
+        image,
+      });
+      console.log("Response from Flask:", response.data);
+      return res.json(response.data);
+    } catch (connectionError) {
+      console.error("❌ Connection Error:", connectionError.message);
+      return res.status(503).json({
+        error:
+          "No se pudo conectar con el servidor connect ECONNREFUSED 127.0.0.1:5000",
+        details: connectionError.message,
+      });
+    }
   } catch (error) {
     console.error("❌ Error in Node.js:", error.message);
     return res.status(500).json({ error: "Error en el reconocimiento facial" });

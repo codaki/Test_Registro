@@ -47,7 +47,7 @@ def recognize_face(image):
                     "confidence": confidence_score
                 }
             else:
-                print(f"❌ Confianza insuficiente: {confidence_score:.2f}%")
+                print(f"❌ Confianza insuficiente: {confidence_score:.2f}%{predicted_name}")
                 return {"error": "La confianza es inferior al 70%"}
     except Exception as e:
         print(f"❌ Error en el reconocimiento facial: {str(e)}")

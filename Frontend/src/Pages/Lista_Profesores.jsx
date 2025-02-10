@@ -5,14 +5,7 @@ import Modal from "../Components/Modal";
 import Table from "../Components/Table";
 import EditProfesorModal from "../Modals/EditProfesorModal";
 
-const columns = [
-  "Nombres",
-  "Apellidos",
-  "Email",
-  "Profesor ID",
-  "Usuario ID",
-  "Porcentaje Asistencia",
-];
+const columns = ["Nombres", "Apellidos", "Email", "Profesor ID", "Usuario ID"];
 
 function Lista_Profesores() {
   const [data, setData] = useState([]);
