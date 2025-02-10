@@ -105,9 +105,7 @@ export const updateProfesor = (req, res) => {
   db.query(getUserQuery, [profesorId], (err, result) => {
     if (err) {
       console.error("Error obteniendo Usuario_ID:", err);
-      return res
-        .status(500)
-        .json({ error: "Error en la consulta a la base de datos" });
+      return res.status(500).json({ error: "Error en la consulta a la base de datos" });
     }
 
     if (result.rows.length === 0) {
@@ -116,49 +114,51 @@ export const updateProfesor = (req, res) => {
 
     const usuarioId = result.rows[0].usuario_id;
 
-    // 🔹 Construcción dinámica de la consulta para manejar la contraseña opcionalmente
-    const updateQuery = `
+    // 🔹 Construcción dinámica de la consulta
+    let updateQuery = `
       WITH updated_user AS (
         UPDATE Usuario 
         SET 
           Cedula = $1,
           Username = $2,
-          ${UserPassword ? "UserPassword = $3," : ""} 
-          Nombre1 = $4, 
-          Nombre2 = $5, 
-          Apellido1 = $6, 
-          Apellido2 = $7
-        WHERE Usuario_ID = $8
-        RETURNING Usuario_ID
-      )
-      UPDATE Profesor 
-      SET 
-        Email = $9,
-        docente_id = $10
-      WHERE Profesor_ID = $11
-      RETURNING *;
+          Nombre1 = $3, 
+          Nombre2 = $4, 
+          Apellido1 = $5, 
+          Apellido2 = $6
     `;
-
+    
     const values = [
       Cedula,
       Username,
-      ...(UserPassword ? [UserPassword] : []), // Agrega contraseña solo si se envió
       Nombre1,
       Nombre2,
       Apellido1,
       Apellido2,
-      usuarioId, // 🔹 Se usa `usuarioId` obtenido antes
-      Email,
-      docente_id,
-      profesorId,
     ];
+
+    if (UserPassword) {
+      updateQuery += ", UserPassword = $" + (values.length + 1);
+      values.push(UserPassword);
+    }
+
+    updateQuery += `
+        WHERE Usuario_ID = $${values.length + 1}
+        RETURNING Usuario_ID
+      )
+      UPDATE Profesor 
+      SET 
+        Email = $${values.length + 2},
+        docente_id = $${values.length + 3}
+      WHERE Profesor_ID = $${values.length + 4}
+      RETURNING *;
+    `;
+
+    values.push(usuarioId, Email, docente_id, profesorId);
 
     db.query(updateQuery, values, (err, result) => {
       if (err) {
         console.error("Error en la actualización:", err);
-        return res
-          .status(500)
-          .json({ error: "Error en la actualización de datos" });
+        return res.status(500).json({ error: "Error en la actualización de datos" });
       }
 
       res.json({
@@ -168,6 +168,7 @@ export const updateProfesor = (req, res) => {
     });
   });
 };
+
 
 // Eliminar un profesor por ID
 export const deleteProfesor = (req, res) => {

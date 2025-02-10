@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Modal from "../Components/Modal"; // Importa el Modal
 
 function EditProfesorModal({ isOpen, onClose, profesor, onSave }) {
   const [formData, setFormData] = useState({
@@ -12,14 +13,19 @@ function EditProfesorModal({ isOpen, onClose, profesor, onSave }) {
     Apellido2: "",
     Email: "",
     docente_id: "",
-    profesor_id: "", // 🔹 Agregar el ID del profesor
+    profesor_id: "",
+  });
+
+  const [modalInfo, setModalInfo] = useState({
+    show: false,
+    title: "",
+    message: "",
   });
 
   // Cargar datos actuales del profesor en el formulario
   useEffect(() => {
     if (profesor) {
-      console.log("Datos del profesor recibidos en el modal:", profesor); // 🔍 Verifica si `profesor_id` llega correctamente
-  
+      console.log("Datos del profesor recibidos en el modal:", profesor);
       setFormData({
         Cedula: profesor.cedula || "",
         Username: profesor.username || "",
@@ -30,11 +36,10 @@ function EditProfesorModal({ isOpen, onClose, profesor, onSave }) {
         Apellido2: profesor.apellido2 || "",
         Email: profesor.email || "",
         docente_id: profesor.docente_id || "",
-        profesor_id: profesor.profesor_id || "", // 🔹 Asegurar que el ID se asigna
+        profesor_id: profesor.profesor_id || "",
       });
     }
   }, [profesor]);
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,12 +51,22 @@ function EditProfesorModal({ isOpen, onClose, profesor, onSave }) {
 
     try {
       await axios.put(`http://localhost:3000/api/profesores/${profesor.profesor_id}`, formData);
-      alert("Datos actualizados correctamente");
+
+      setModalInfo({
+        show: true,
+        title: "Éxito",
+        message: "Datos actualizados correctamente.",
+      });
+
       onSave();
-      onClose();
     } catch (error) {
       console.error("Error al actualizar datos:", error);
-      alert("Hubo un error al actualizar los datos.");
+
+      setModalInfo({
+        show: true,
+        title: "Error",
+        message: "Hubo un error al actualizar los datos.",
+      });
     }
   };
 
@@ -64,7 +79,6 @@ function EditProfesorModal({ isOpen, onClose, profesor, onSave }) {
         <form onSubmit={handleSubmit}>
           <input type="text" name="Cedula" value={formData.Cedula} onChange={handleChange} placeholder="Cédula" className="w-full mb-2 p-2 border" />
           <input type="text" name="Username" value={formData.Username} onChange={handleChange} placeholder="Usuario" className="w-full mb-2 p-2 border" />
-          <input type="text" name="UserPassword" value={formData.UserPassword} onChange={handleChange} placeholder="Nueva Contraseña" className="w-full mb-2 p-2 border" />
           <input type="text" name="Nombre1" value={formData.Nombre1} onChange={handleChange} placeholder="Primer Nombre" className="w-full mb-2 p-2 border" />
           <input type="text" name="Nombre2" value={formData.Nombre2} onChange={handleChange} placeholder="Segundo Nombre" className="w-full mb-2 p-2 border" />
           <input type="text" name="Apellido1" value={formData.Apellido1} onChange={handleChange} placeholder="Primer Apellido" className="w-full mb-2 p-2 border" />
@@ -78,6 +92,17 @@ function EditProfesorModal({ isOpen, onClose, profesor, onSave }) {
           </div>
         </form>
       </div>
+
+      {/* Modal de mensajes */}
+      <Modal
+        show={modalInfo.show}
+        onClose={() => {
+          setModalInfo({ show: false, title: "", message: "" });
+          onClose(); // Cierra el modal de edición si fue exitoso
+        }}
+        title={modalInfo.title}
+        message={modalInfo.message}
+      />
     </div>
   );
 }

@@ -5,14 +5,14 @@ function Agregar_Profesores() {
   const [formData, setFormData] = useState({
     Cedula: "",
     Username: "",
-    UserPassword: "",
+    UserPassword: null, // Permite null si es profesor
     Nombre1: "",
     Nombre2: "",
     Apellido1: "",
     Apellido2: "",
     RoL_ID: "1", // Default: Administrador
-    Email: "", // Solo si es profesor
-    docente_id: "", // Solo si es profesor
+    Email: null, // Solo si es profesor
+    docente_id: null, // Solo si es profesor
   });
 
   const [isProfesor, setIsProfesor] = useState(false);
@@ -28,10 +28,12 @@ function Agregar_Profesores() {
   const handleRoleChange = (e) => {
     const { value } = e.target;
     setIsProfesor(value === "2");
+
     setFormData({
       ...formData,
       RoL_ID: value,
-      Email: value === "2" ? "" : null, 
+      UserPassword: value === "2" ? null : "",
+      Email: value === "2" ? "" : null,
       docente_id: value === "2" ? "" : null,
     });
   };
@@ -50,14 +52,14 @@ function Agregar_Profesores() {
       setFormData({
         Cedula: "",
         Username: "",
-        UserPassword: "",
+        UserPassword: null,
         Nombre1: "",
         Nombre2: "",
         Apellido1: "",
         Apellido2: "",
         RoL_ID: "1",
-        Email: "",
-        docente_id: "",
+        Email: null,
+        docente_id: null,
       });
       setIsProfesor(false);
     } catch (error) {
@@ -78,25 +80,36 @@ function Agregar_Profesores() {
           </select>
         </div>
         
-        {/* Campos comunes para ambos roles */}
+        {/* Campos comunes */}
         <div className="grid grid-cols-2 gap-4">
           <input type="text" name="Cedula" value={formData.Cedula} onChange={handleChange} placeholder="Cédula" className="w-full border p-2" />
+          <input type="text" name="Username" value={formData.Username} onChange={handleChange} placeholder="Usuario" className="w-full border p-2" />
           <input type="text" name="Nombre1" value={formData.Nombre1} onChange={handleChange} placeholder="Primer Nombre" className="w-full border p-2" />
           <input type="text" name="Nombre2" value={formData.Nombre2} onChange={handleChange} placeholder="Segundo Nombre" className="w-full border p-2" />
           <input type="text" name="Apellido1" value={formData.Apellido1} onChange={handleChange} placeholder="Primer Apellido" className="w-full border p-2" />
           <input type="text" name="Apellido2" value={formData.Apellido2} onChange={handleChange} placeholder="Segundo Apellido" className="w-full border p-2" />
-          <input type="text" name="Username" value={formData.Username} onChange={handleChange} placeholder="Usuario" className="w-full border p-2" />
-          <input type="password" name="UserPassword" value={formData.UserPassword} onChange={handleChange} placeholder="Contraseña" className="w-full border p-2" />
         </div>
+
+        {/* Campo de contraseña solo para administradores */}
+        {!isProfesor && (
+          <div className="mb-4">
+            <input
+              type="password"
+              name="UserPassword"
+              value={formData.UserPassword || ""}
+              onChange={handleChange}
+              placeholder="Contraseña"
+              className="w-full border p-2"
+            />
+          </div>
+        )}
 
         {/* Campos adicionales solo si es Profesor */}
         {isProfesor && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <input type="email" name="Email" value={formData.Email} onChange={handleChange} placeholder="Correo" className="w-full border p-2" />
-              <input type="text" name="docente_id" value={formData.docente_id} onChange={handleChange} placeholder="Docente ID" className="w-full border p-2" />
-            </div>
-          </>
+          <div className="grid grid-cols-2 gap-4">
+            <input type="email" name="Email" value={formData.Email} onChange={handleChange} placeholder="Correo" className="w-full border p-2" />
+            <input type="text" name="docente_id" value={formData.docente_id} onChange={handleChange} placeholder="Docente ID" className="w-full border p-2" />
+          </div>
         )}
 
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 mt-4 rounded">

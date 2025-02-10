@@ -63,7 +63,7 @@ export const createUsuario = async (req, res) => {
       docente_id,
     } = req.body;
 
-    if (!Cedula || !Username || !UserPassword || !Nombre1 || !Apellido1 || !RoL_ID) {
+    if (!Cedula || !Username || !Nombre1 || !Apellido1 || !RoL_ID) {
       return res.status(400).json({ error: "Todos los campos obligatorios deben estar llenos" });
     }
 
