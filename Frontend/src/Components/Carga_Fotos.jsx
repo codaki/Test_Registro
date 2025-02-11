@@ -41,6 +41,55 @@ function Carga_Fotos() {
     setProfesorSeleccionado(evento.target.value);
   };
 
+  const guardarFotos = async () => {
+    if (!profesorSeleccionado) {
+      alert("Seleccione un profesor antes de guardar las fotos.");
+      return;
+    }
+
+    const profesor = profesores.find((p) => p.profesor_id == profesorSeleccionado);
+    if (!profesor) {
+      alert("Profesor no encontrado.");
+      return;
+    }
+
+    // Crear nombre de carpeta con formato apellido1_apellido2_nombre1_nombre2
+    const nombreCarpeta = `${profesor.apellido1.toLowerCase()}_${profesor.apellido2 ? profesor.apellido2.toLowerCase() + "_" : ""}${profesor.nombre1.toLowerCase()}_${profesor.nombre2 ? profesor.nombre2.toLowerCase() : ""}`.trim();
+
+    // Convertir imágenes a Base64 y enviarlas al servidor
+    const imagenesBase64 = await Promise.all(
+      imagenes.map(async (imagen) => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(imagen);
+          reader.onloadend = () => {
+            resolve({
+              nombre: imagen.name,
+              data: reader.result.split(",")[1], // Eliminar el prefijo "data:image/jpeg;base64,"
+            });
+          };
+        });
+      })
+    );
+
+    // Enviar las imágenes al servidor Python
+    fetch("http://localhost:5000/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profesor: nombreCarpeta,
+        imagenes: imagenesBase64,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Respuesta del servidor:", data);
+        alert("Fotos guardadas con éxito");
+        setImagenes([]); // Limpiar lista después de subirlas
+      })
+      .catch((error) => console.error("Error al subir imágenes:", error));
+  };
+
   return (
     <div className="p-4 border rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-2">Subir Fotos</h2>
@@ -74,31 +123,14 @@ function Carga_Fotos() {
         {imagenes.length} imagen(es) cargada(s)
       </p>
 
-      {/* Tabla de imágenes cargadas */}
-      {imagenes.length > 0 && (
-        <table className="mt-4 border-collapse border w-full">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">Previsualización</th>
-              <th className="border p-2">Nombre</th>
-            </tr>
-          </thead>
-          <tbody>
-            {imagenes.map((imagen, index) => (
-              <tr key={index} className="border">
-                <td className="border p-2">
-                  <img
-                    src={URL.createObjectURL(imagen)}
-                    alt="Vista previa"
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                </td>
-                <td className="border p-2">{imagen.name}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {/* Botón para guardar imágenes */}
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+        onClick={guardarFotos}
+        disabled={imagenes.length === 0}
+      >
+        Guardar Fotos
+      </button>
     </div>
   );
 }
