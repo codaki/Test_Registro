@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import Modal from "./Modal"; // Asegúrate de importar el modal
 
 function Carga_Fotos() {
   const [imagenes, setImagenes] = useState([]);
   const [profesores, setProfesores] = useState([]);
   const [profesorSeleccionado, setProfesorSeleccionado] = useState("");
+  const [modal, setModal] = useState({ show: false, title: "", message: "" });
 
   // Cargar profesores desde la API
   useEffect(() => {
@@ -15,7 +17,7 @@ function Carga_Fotos() {
         return response.json();
       })
       .then((data) => {
-        console.log("Profesores obtenidos:", data); // Verificar datos en consola
+        console.log("Profesores obtenidos:", data);
         setProfesores(data);
       })
       .catch((error) => console.error("Error en la API:", error));
@@ -41,22 +43,28 @@ function Carga_Fotos() {
     setProfesorSeleccionado(evento.target.value);
   };
 
+  const mostrarModal = (title, message) => {
+    setModal({ show: true, title, message });
+  };
+
+  const cerrarModal = () => {
+    setModal({ show: false, title: "", message: "" });
+  };
+
   const guardarFotos = async () => {
     if (!profesorSeleccionado) {
-      alert("Seleccione un profesor antes de guardar las fotos.");
+      mostrarModal("Error", "Seleccione un profesor antes de guardar las fotos.");
       return;
     }
 
     const profesor = profesores.find((p) => p.profesor_id == profesorSeleccionado);
     if (!profesor) {
-      alert("Profesor no encontrado.");
+      mostrarModal("Error", "Profesor no encontrado.");
       return;
     }
 
-    // Crear nombre de carpeta con formato apellido1_apellido2_nombre1_nombre2
     const nombreCarpeta = `${profesor.apellido1.toLowerCase()}_${profesor.apellido2 ? profesor.apellido2.toLowerCase() + "_" : ""}${profesor.nombre1.toLowerCase()}_${profesor.nombre2 ? profesor.nombre2.toLowerCase() : ""}`.trim();
 
-    // Convertir imágenes a Base64 y enviarlas al servidor
     const imagenesBase64 = await Promise.all(
       imagenes.map(async (imagen) => {
         return new Promise((resolve) => {
@@ -65,14 +73,13 @@ function Carga_Fotos() {
           reader.onloadend = () => {
             resolve({
               nombre: imagen.name,
-              data: reader.result.split(",")[1], // Eliminar el prefijo "data:image/jpeg;base64,"
+              data: reader.result.split(",")[1],
             });
           };
         });
       })
     );
 
-    // Enviar las imágenes al servidor Python
     fetch("http://localhost:5000/upload", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -84,17 +91,19 @@ function Carga_Fotos() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Respuesta del servidor:", data);
-        alert("Fotos guardadas con éxito");
-        setImagenes([]); // Limpiar lista después de subirlas
+        mostrarModal("Éxito", "Fotos guardadas con éxito.");
+        setImagenes([]);
       })
-      .catch((error) => console.error("Error al subir imágenes:", error));
+      .catch((error) => {
+        console.error("Error al subir imágenes:", error);
+        mostrarModal("Error", "Hubo un problema al subir las fotos.");
+      });
   };
 
   return (
     <div className="p-4 border rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-2">Subir Fotos</h2>
 
-      {/* Desplegable de profesores */}
       <label className="block mb-2 text-sm font-medium">Seleccionar Profesor:</label>
       <select
         value={profesorSeleccionado}
@@ -109,7 +118,6 @@ function Carga_Fotos() {
         ))}
       </select>
 
-      {/* Área para arrastrar imágenes */}
       <div
         className="border-dashed border-2 border-gray-400 p-6 text-center rounded-md cursor-pointer"
         onDragOver={manejarArrastre}
@@ -118,12 +126,35 @@ function Carga_Fotos() {
         Arrastra aquí tus imágenes en formato JPG
       </div>
 
-      {/* Contador de imágenes */}
       <p className="mt-2 text-sm text-gray-600">
         {imagenes.length} imagen(es) cargada(s)
       </p>
 
-      {/* Botón para guardar imágenes */}
+      {imagenes.length > 0 && (
+        <table className="mt-4 border-collapse border w-full">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2">Previsualización</th>
+              <th className="border p-2">Nombre</th>
+            </tr>
+          </thead>
+          <tbody>
+            {imagenes.map((imagen, index) => (
+              <tr key={index} className="border">
+                <td className="border p-2">
+                  <img
+                    src={URL.createObjectURL(imagen)}
+                    alt="Vista previa"
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                </td>
+                <td className="border p-2">{imagen.name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
         onClick={guardarFotos}
@@ -131,6 +162,9 @@ function Carga_Fotos() {
       >
         Guardar Fotos
       </button>
+
+      {/* Modal de confirmación o error */}
+      <Modal show={modal.show} onClose={cerrarModal} title={modal.title} message={modal.message} />
     </div>
   );
 }
