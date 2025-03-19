@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal"; // Asegúrate de importar el modal
 
 function Carga_Fotos() {
@@ -53,17 +53,26 @@ function Carga_Fotos() {
 
   const guardarFotos = async () => {
     if (!profesorSeleccionado) {
-      mostrarModal("Error", "Seleccione un profesor antes de guardar las fotos.");
+      mostrarModal(
+        "Error",
+        "Seleccione un profesor antes de guardar las fotos."
+      );
       return;
     }
 
-    const profesor = profesores.find((p) => p.profesor_id == profesorSeleccionado);
+    const profesor = profesores.find(
+      (p) => p.profesor_id == profesorSeleccionado
+    );
     if (!profesor) {
       mostrarModal("Error", "Profesor no encontrado.");
       return;
     }
 
-    const nombreCarpeta = `${profesor.apellido1.toLowerCase()}_${profesor.apellido2 ? profesor.apellido2.toLowerCase() + "_" : ""}${profesor.nombre1.toLowerCase()}_${profesor.nombre2 ? profesor.nombre2.toLowerCase() : ""}`.trim();
+    const nombreCarpeta = `${profesor.apellido1.toLowerCase()}_${
+      profesor.apellido2 ? profesor.apellido2.toLowerCase() + "_" : ""
+    }${profesor.nombre1.toLowerCase()}_${
+      profesor.nombre2 ? profesor.nombre2.toLowerCase() : ""
+    }`.trim();
 
     const imagenesBase64 = await Promise.all(
       imagenes.map(async (imagen) => {
@@ -104,7 +113,9 @@ function Carga_Fotos() {
     <div className="p-4 border rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-2">Subir Fotos</h2>
 
-      <label className="block mb-2 text-sm font-medium">Seleccionar Profesor:</label>
+      <label className="block mb-2 text-sm font-medium">
+        Seleccionar Profesor:
+      </label>
       <select
         value={profesorSeleccionado}
         onChange={manejarSeleccionProfesor}
@@ -113,7 +124,9 @@ function Carga_Fotos() {
         <option value="">Seleccione un profesor</option>
         {profesores.map((profesor) => (
           <option key={profesor.profesor_id} value={profesor.profesor_id}>
-            {`${profesor.nombre1} ${profesor.nombre2 || ""} ${profesor.apellido1} ${profesor.apellido2 || ""}`.trim()}
+            {`${profesor.nombre1} ${profesor.nombre2 || ""} ${
+              profesor.apellido1
+            } ${profesor.apellido2 || ""}`.trim()}
           </option>
         ))}
       </select>
@@ -131,28 +144,30 @@ function Carga_Fotos() {
       </p>
 
       {imagenes.length > 0 && (
-        <table className="mt-4 border-collapse border w-full">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">Previsualización</th>
-              <th className="border p-2">Nombre</th>
-            </tr>
-          </thead>
-          <tbody>
-            {imagenes.map((imagen, index) => (
-              <tr key={index} className="border">
-                <td className="border p-2">
-                  <img
-                    src={URL.createObjectURL(imagen)}
-                    alt="Vista previa"
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                </td>
-                <td className="border p-2">{imagen.name}</td>
+        <div className="mt-4 max-h-96 overflow-y-auto">
+          <table className="border-collapse border w-full">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border p-2">Previsualización</th>
+                <th className="border p-2">Nombre</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {imagenes.map((imagen, index) => (
+                <tr key={index} className="border">
+                  <td className="border p-2">
+                    <img
+                      src={URL.createObjectURL(imagen)}
+                      alt="Vista previa"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  </td>
+                  <td className="border p-2">{imagen.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <button
@@ -164,7 +179,12 @@ function Carga_Fotos() {
       </button>
 
       {/* Modal de confirmación o error */}
-      <Modal show={modal.show} onClose={cerrarModal} title={modal.title} message={modal.message} />
+      <Modal
+        show={modal.show}
+        onClose={cerrarModal}
+        title={modal.title}
+        message={modal.message}
+      />
     </div>
   );
 }

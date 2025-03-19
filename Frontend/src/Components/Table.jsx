@@ -1,42 +1,16 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 /* eslint-disable react/prop-types */
-function Table({
-  columns,
-  data,
-  searchTerm,
-  setSearchTerm,
-  onEdit,
-  onReport,
-  refreshData,
-}) {
+function Table({ columns, data, searchTerm, setSearchTerm, onEdit, onReport }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/profesores/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar el profesor");
-      }
-
-      alert("Profesor eliminado con éxito.");
-      refreshData(); // ✅ Se recarga la lista tras eliminar
-    } catch (error) {
-      console.error("Error al eliminar profesor:", error);
-      alert("No se pudo eliminar el profesor.");
-    }
-  };
+  const navigate = useNavigate();
 
   const handleEdit = async (id) => {
     onEdit(id); // ✅ Llama a la función que obtiene los datos completos
   };
-
+  const handleCalendar = (id) => {
+    navigate(`/Calendario/${id}`); // Navigate to calendar with professor ID
+  };
   const handleReport = (profesor) => {
     onReport(profesor);
   };
@@ -149,9 +123,9 @@ function Table({
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   <button
                     className="text-red-600 hover:text-red-900"
-                    onClick={() => handleDelete(row.profesor_id)}
+                    onClick={() => handleCalendar(row.profesor_id)}
                   >
-                    Delete
+                    Calendario
                   </button>
                   <button
                     className="text-blue-600 hover:text-blue-900 ml-4"

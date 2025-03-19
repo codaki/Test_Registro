@@ -1,12 +1,17 @@
+import os
 import cv2
 import numpy as np
 import pickle
-from deepface import DeepFace
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import base64
 import io
 from PIL import Image
+from deepface import DeepFace
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+# Configuración
+UPLOAD_FOLDER = "imagenes_profesores"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Crear carpeta base si no existe
 
 # Cargar el modelo y el label encoder
 with open("deepface_model_VGG_Renombrado_completo.pkl", "rb") as f:
@@ -18,6 +23,7 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_fronta
 app = Flask(__name__)
 CORS(app)
 
+
 def recognize_face(image):
     """Procesa la imagen, detecta el rostro y devuelve el ID y nombre solo si la confianza es >= 70%."""
     try:
@@ -25,33 +31,26 @@ def recognize_face(image):
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=7, minSize=(50, 50))
 
         if len(faces) == 0:
-            print("⚠️ No se detectó ningún rostro en la imagen.")
             return {"error": "No se detectó ningún rostro"}
 
         for (x, y, w, h) in faces:
             face = image[y:y + h, x:x + w]
             face_rgb = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
 
-            print("🧠 Extrayendo embedding con DeepFace...")
             embedding = DeepFace.represent(face_rgb, model_name="VGG-Face", enforce_detection=False)[0]["embedding"]
-            print("✅ Embedding extraído correctamente.")
 
             predicted_probs = model.predict_proba([embedding])[0]
             predicted_label = int(np.argmax(predicted_probs))
             predicted_name = str(label_encoder.inverse_transform([predicted_label])[0])
             confidence_score = float(predicted_probs[predicted_label] * 100)
 
-            if confidence_score >= 50.0:
-                return {
-                    "ID": predicted_name,
-                    "confidence": confidence_score
-                }
+            if confidence_score >= 70.0:
+                return {"ID": predicted_name, "confidence": confidence_score}
             else:
-                print(f"❌ Confianza insuficiente: {confidence_score:.2f}%{predicted_name}")
                 return {"error": "La confianza es inferior al 70%"}
     except Exception as e:
-        print(f"❌ Error en el reconocimiento facial: {str(e)}")
         return {"error": f"Error en el reconocimiento facial: {str(e)}"}
+
 
 @app.route("/recognize", methods=["POST"])
 def recognize():
@@ -69,9 +68,36 @@ def recognize():
     except Exception as e:
         return jsonify({"error": f"Error en el procesamiento: {str(e)}"})
 
+
+@app.route("/upload", methods=["POST"])
+def upload_images():
+    """Guarda imágenes en una carpeta específica para cada profesor."""
+    try:
+        data = request.json
+        profesor = data.get("profesor")
+        imagenes = data.get("imagenes")
+
+        if not profesor or not imagenes:
+            return jsonify({"error": "Faltan datos"}), 400
+
+        carpeta_profesor = os.path.join(UPLOAD_FOLDER, profesor)
+        os.makedirs(carpeta_profesor, exist_ok=True)
+
+        for img in imagenes:
+            nombre_archivo = os.path.join(carpeta_profesor, img["nombre"])
+            with open(nombre_archivo, "wb") as f:
+                f.write(base64.b64decode(img["data"]))
+
+        return jsonify({"message": f"Imágenes guardadas en {carpeta_profesor}"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error en el servidor: {str(e)}"}), 500
+
+
 @app.route("/hello", methods=["GET"])
 def hello():
     return jsonify({"message": "Server is running"})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

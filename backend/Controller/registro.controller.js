@@ -37,7 +37,7 @@ export const createRegistro = async (req, res) => {
     // Convertir la hora de registro a formato numérico HHMM (sin ":")
     let horaRegistro = parseInt(Hora.replace(":", ""), 10);
     console.log("Hora de Registro:", horaRegistro);
-    horaRegistro = "1400";
+    horaRegistro = "1100";
     console.log("Hora de Registro2:", horaRegistro);
     // Verificar si el último registro fue de entrada o salida
     const lastRegistroResult = await db.query(
@@ -64,7 +64,7 @@ export const createRegistro = async (req, res) => {
       "sabado",
     ];
     // const diaColumna = `clase_${diasSemana[diaSemana]}`;
-    let diaColumna = "clase_viernes";
+    let diaColumna = "clase_jueves";
     console.log("Columna de día:", diaColumna);
 
     // Obtener horarios de entrada y salida

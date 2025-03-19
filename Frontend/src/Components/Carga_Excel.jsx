@@ -156,67 +156,74 @@ function Carga_Excel() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div
-        className="w-3/4 p-4 border-2 border-dashed border-gray-400 rounded-lg bg-white"
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        <input
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleFileUpload}
-          className="mb-4"
-        />
-        <p className="text-center text-gray-500">
-          Arrastra y suelta el archivo Excel aquí o haz clic para cargar
-        </p>
-      </div>
-      {data.length > 0 && (
-        <div className="mt-6 w-full overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                {headers.map((header, index) => (
-                  <th
-                    key={index}
-                    className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <td
-                      key={cellIndex}
-                      id={rowIndex}
-                      className="py-2 px-4 border-b border-gray-200"
-                    >
-                      {cell}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div>
+      {!data.length > 0 && (
+        <div className=" flex flex-col items-center h-screen min-h-screen justify-center bg-gray-100">
+          <div
+            className="w-3/4 p-4 border-2 border-dashed border-gray-400 rounded-lg bg-white"
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={handleFileUpload}
+              className="mb-4"
+            />
+            <p className="text-center text-gray-500">
+              Arrastra y suelta el archivo Excel aquí o haz clic para cargar
+            </p>
+          </div>
         </div>
       )}
-      <button
-        onClick={saveToDatabase}
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Guardar Profesores
-      </button>
-      <button
-        onClick={saveHorarioToDatabase}
-        className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
-      >
-        Guardar Horarios
-      </button>
+      {data.length > 0 && (
+        <div className=" flex flex-col w-[140vh] items-center h-[85vh] bg-gray-100">
+          <div className="mt-4 w-[135vh] h-[75vh] overflow-y-auto border border-gray-300 rounded-lg shadow-lg">
+            <table className="min-w-full bg-white">
+              <thead className="sticky top-0 bg-gray-100 z-10">
+                <tr>
+                  {headers.map((header, index) => (
+                    <th
+                      key={index}
+                      className="py-2 px-4 border-b border-gray-300 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((row, rowIndex) => (
+                  <tr key={rowIndex} className="hover:bg-gray-50">
+                    {row.map((cell, cellIndex) => (
+                      <td
+                        key={cellIndex}
+                        className="py-2 px-4 border-b border-gray-200"
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>{" "}
+          <div className="flex justify-center w-11/12 h-14 my-4">
+            <button
+              onClick={saveToDatabase}
+              className=" bg-blue-500 text-white px-4 py-2 rounded mr-4"
+            >
+              Guardar Profesores
+            </button>
+            <button
+              onClick={saveHorarioToDatabase}
+              className=" bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Guardar Horarios
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

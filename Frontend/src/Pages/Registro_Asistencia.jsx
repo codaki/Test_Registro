@@ -13,6 +13,7 @@ function RegistroAsistencia() {
   const [captureTime, setCaptureTime] = useState("");
   const [professorInfo, setProfessorInfo] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -53,10 +54,12 @@ function RegistroAsistencia() {
         Lugar: professorInfo.edificio,
       };
       await axios.post("http://localhost:3000/api/registros", registroData);
+      setIsError(false);
       setShowModal(true);
     } catch (error) {
       console.error("Error al registrar:", error);
-      alert("Error al registrar la asistencia");
+      setIsError(true);
+      setShowModal(true);
     }
   };
 
@@ -69,6 +72,7 @@ function RegistroAsistencia() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Header */}
       <div className="relative w-full h-32">
         <img
           src={entrada} // Ruta a tu imagen de fondo
@@ -86,10 +90,15 @@ function RegistroAsistencia() {
           <img src={decc} alt="Logo DECC" className="h-20 object-contain" />
         </div>
       </div>
+
+      {/* Título */}
       <div className="w-full bg-green-700 py-3 text-center text-white text-lg font-bold">
-        REGISTRO DE PERMANENCIA
+        REGISTRO DE ASISTENCIA A CLASES
       </div>
+
+      {/* Contenedor Principal */}
       <div className="flex flex-1 bg-gray-100 p-8 gap-8 justify-center">
+        {/* Información de Registro */}
         <div className="w-1/2 bg-white shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             Información de Registro
@@ -130,21 +139,39 @@ function RegistroAsistencia() {
           </button>
         </div>
 
-        <div className="w-1/2 flex items-center justify-center relative">
-          <Camera onCapture={handleCapture} />
-          <div className="absolute top-4 right-4 bg-blue-900 text-white p-2 rounded-lg">
-            <p className="text-sm">Fecha: {currentDate}</p>
-            <p className="text-sm">Hora: {currentTime}</p>
+        {/* Contenedor de Cámara y Hora */}
+        <div className="w-1/2 flex flex-col items-center justify-center relative">
+          {/* Nuevo Contenedor para la Fecha y Hora */}
+          <div className="w-7/12 bg-green-700 text-white text-center p-4 rounded-lg mb-2 border-red-600 border-2">
+            <p className="text-2xl font-bold">{currentTime}</p>
+            <p className="text-lg">{currentDate}</p>
           </div>
+
+          {/* Cámara */}
+          <Camera onCapture={handleCapture} />
         </div>
-      </div>{" "}
+      </div>
+
       {/* Footer */}
       <div className="w-full bg-red-500 h-2"></div>
       <div className="w-full bg-green-700 py-4 text-center text-white text-sm">
-        © 2024 Universidad de las Fuerzas Armadas ESPE - © 2024 CIENCIAS DE LA
+        © 2024 Universidad de las Fuerzas Armadas ESPE - CIENCIAS DE LA
         COMPUTACIÓN.
       </div>
-      <Modal show={showModal} onClose={handleCloseModal} />
+
+      {/* Modal */}
+      <Modal
+        show={showModal}
+        onClose={handleCloseModal}
+        title={isError ? "Error de Registro" : "¡Registro Exitoso!"}
+        message={
+          isError
+            ? "Ha ocurrido un error al registrar la asistencia. Por favor, intente nuevamente."
+            : `Se ha registrado la asistencia de ${
+                professorInfo?.nombre1 || ""
+              } ${professorInfo?.apellido1 || ""} correctamente.`
+        }
+      />
     </div>
   );
 }

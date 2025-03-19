@@ -11,8 +11,8 @@ import Sidebar from "./Components/Sidebar";
 import Agregar_Profesores from "./pages/Agregar_Profesores";
 import Calendario from "./Pages/Calendario";
 import Carga_horarios from "./Pages/Carga_horarios";
-import Entrenamiento from "./Pages/Entrenamiento";
 import Dashboard from "./Pages/Dashboard";
+import Entrenamiento from "./Pages/Entrenamiento";
 import Lista_Profesores from "./Pages/Lista_Profesores";
 import Login from "./pages/Login";
 //import Main_Page from "./Pages/Main_Page";
@@ -64,7 +64,7 @@ const App = () => {
           <Route index element={<Reportes />} />
         </Route>
         <Route path="/Calendario" element={<Layout />}>
-          <Route index element={<Calendario />} />
+          <Route path="/Calendario/:id" element={<Calendario />} />
         </Route>
         <Route path="/Entrenamiento" element={<Layout />}>
           <Route index element={<Entrenamiento />} />

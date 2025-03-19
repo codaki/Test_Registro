@@ -105,7 +105,9 @@ export const updateProfesor = (req, res) => {
   db.query(getUserQuery, [profesorId], (err, result) => {
     if (err) {
       console.error("Error obteniendo Usuario_ID:", err);
-      return res.status(500).json({ error: "Error en la consulta a la base de datos" });
+      return res
+        .status(500)
+        .json({ error: "Error en la consulta a la base de datos" });
     }
 
     if (result.rows.length === 0) {
@@ -126,15 +128,8 @@ export const updateProfesor = (req, res) => {
           Apellido1 = $5, 
           Apellido2 = $6
     `;
-    
-    const values = [
-      Cedula,
-      Username,
-      Nombre1,
-      Nombre2,
-      Apellido1,
-      Apellido2,
-    ];
+
+    const values = [Cedula, Username, Nombre1, Nombre2, Apellido1, Apellido2];
 
     if (UserPassword) {
       updateQuery += ", UserPassword = $" + (values.length + 1);
@@ -158,7 +153,9 @@ export const updateProfesor = (req, res) => {
     db.query(updateQuery, values, (err, result) => {
       if (err) {
         console.error("Error en la actualización:", err);
-        return res.status(500).json({ error: "Error en la actualización de datos" });
+        return res
+          .status(500)
+          .json({ error: "Error en la actualización de datos" });
       }
 
       res.json({
@@ -168,7 +165,6 @@ export const updateProfesor = (req, res) => {
     });
   });
 };
-
 
 // Eliminar un profesor por ID
 export const deleteProfesor = (req, res) => {
@@ -213,17 +209,17 @@ export const getProfesorHorario = (req, res) => {
     5: 12,
     6: 13,
     7: 17,
-    8: 999,
+    8: 999, //criollo
     9: 19,
     10: 20,
     11: 21,
     12: 22,
     13: 27,
-    14: 888,
+    14: 888, //godoy
     15: 29,
     16: 32,
     17: 33,
-    18: 777,
+    18: 69,
     19: 35,
     20: 38,
     21: 40,
@@ -233,11 +229,11 @@ export const getProfesorHorario = (req, res) => {
     25: 48,
     26: 49,
     27: 56,
-    28: 666,
+    28: 666, //reyes
     29: 58,
     30: 59,
     31: 61,
-    32: 555,
+    32: 555, //sosa
     33: 62,
     34: 63,
     35: 64,
@@ -246,7 +242,7 @@ export const getProfesorHorario = (req, res) => {
   //Reconoce el día actual, modificar TODO
   //const dayColumn = dayColumns[currentDay];
 
-  let dayColumn = "clase_viernes";
+  let dayColumn = "clase_jueves";
   console.log(mappedProfesorId, dayColumn);
   // Only proceed if it's a weekday
   if (!dayColumn) {
@@ -263,14 +259,14 @@ export const getProfesorHorario = (req, res) => {
     INNER JOIN Horario h ON p.Profesor_ID = h.Profesor_ID
     WHERE p.Profesor_ID = $1 
     --AND h.${dayColumn} = true
-    AND h.clase_miercoles = true
+    AND h.clase_jueves = true
     AND $2::time BETWEEN 
    (CAST(h.hora_ingreso AS TIME) - INTERVAL '10 minutes') 
     AND 
     (CAST(h.hora_finalizacion AS TIME) + INTERVAL '10 minutes');
   `;
 
-  db.query(query, [mappedProfesorId, "0700"], (err, result) => {
+  db.query(query, [mappedProfesorId, "1100"], (err, result) => {
     if (err) {
       console.error("Error en la consulta a la base de datos:", err);
       return res.status(500).send("Error en la consulta a la base de datos");

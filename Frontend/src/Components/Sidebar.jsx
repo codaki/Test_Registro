@@ -2,11 +2,11 @@ import { useState } from "react";
 import {
   FaCalendarAlt,
   FaChartBar,
+  FaCreativeCommonsBy,
   FaFileExcel,
   FaHome,
-  FaUsers,
   FaUser,
-  FaCreativeCommonsBy,
+  FaUsers,
 } from "react-icons/fa";
 
 function Sidebar() {
@@ -64,13 +64,13 @@ function Sidebar() {
           <FaChartBar className="text-xl" />
           {!isCollapsed && <span className="ml-2">Reportes</span>}
         </a>
-        <a
+        {/* <a
           href="/Calendario"
           className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
-        >
-          <FaCalendarAlt className="text-xl" />
+        > */}
+        {/* <FaCalendarAlt className="text-xl" />
           {!isCollapsed && <span className="ml-2">Calendario</span>}
-        </a>
+        </a> */}
         <a
           href="/Entrenamiento"
           className="flex items-center w-full p-4 hover:bg-gray-700 hover:text-white justify-center"
